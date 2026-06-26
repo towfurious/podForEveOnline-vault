@@ -1,0 +1,11 @@
+# Obsidian workspace state (per-device, not shareable)
+.obsidian/workspace*
+.obsidian/cache
+.obsidian/appearance.json
+
+# Obsidian trash
+.trash/
+
+# OS
+.DS_Store
+Thumbs.db
