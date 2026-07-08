@@ -4,7 +4,7 @@ type: entity
 tags: [entity, domain, skill, skill-queue, mvp]
 aliases: [SkillQueue, Skill Training Queue]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-08
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -37,6 +37,7 @@ Each element:
 
 ## Business rules / invariants
 - The **head** of the queue (`queue_position == 0`) is the currently training skill; only it has non-null dates in the normal case.
+- **Completed entries remain in the response** — ESI does not immediately remove entries whose `finish_date` is in the past. The client must filter: `finishDate != null && finishDate <= now`. Without this, the UI shows a finished skill frozen at 100% progress. See `SkillQueueEntry.hasFinished(nowEpochSeconds)`.
 - **Paused queue** → all dates `null`. UI renders "Queue paused".
 - Progress math: `now ∈ [start_date, finish_date]`, `progress = (now − start) / (finish − start)`, clamped to `[0, 1]`. SP gained = `level_start_sp + progress × (level_end_sp − level_start_sp)`.
 - Refresh triggers: app foreground, pull-to-refresh, explicit queue change event (e.g. notification fired at completion).
