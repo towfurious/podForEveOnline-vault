@@ -178,6 +178,7 @@ Accepted YYYY-MM-DD  (or) Superseded by [[ADR-XXX]]  (or) Rejected
 ## Data it needs
 ## States: Loading / Success / Error
 ## Interactions
+## Current UI          ← screenshot + version table (see §4.5)
 ## Implementation notes  (filled during dev — code paths, files)
 ## Related ViewModels / UseCases
 ```
@@ -271,6 +272,7 @@ The rule that keeps the wiki alive alongside code. **The dev agent MUST update t
 | Discovers a non-obvious ESI shape or quirk | `esi` page + entity page |
 | Hits an Android / iOS quirk | `platform` page |
 | Ships a screen | `screen` page gains an "Implementation notes" section with code paths |
+| UI of a screen changes visibly | Update `## Current UI` on that screen's page (see §4.5) |
 | Accepts code-review feedback that changes an approach | ADR or update affected pages |
 | Introduces a reusable code idiom | `pattern` page |
 
@@ -279,6 +281,43 @@ Before claiming a dev task complete, ask yourself: *are there wiki updates owed?
 ## [YYYY-MM-DD] dev | <task>
 - Code: <commits / files>
 - Wiki: [[pages touched]]
+```
+
+### 4.5 UI screenshot versioning
+
+Каждая screen-страница содержит секцию `## Current UI` с актуальным скриншотом и таблицей версий.
+
+**Папка:** `vault/attachments/` (Obsidian читает её нативно через `![[filename]]`).
+
+**Соглашение по именованию:** `screen-{slug}-{YYYY-MM-DD}.png`
+Примеры: `screen-dashboard-2026-07-09.png`, `screen-pi-2026-07-10.png`.
+
+**Структура секции:**
+```markdown
+## Current UI
+
+![[screen-dashboard-2026-07-09.png]]
+
+| Версия | Дата | Что изменилось |
+|--------|------|----------------|
+| v2 | 2026-07-10 | +новая фича |
+| v1 | 2026-07-09 | Первая реализация |
+```
+
+**Рабочий процесс при обновлении UI:**
+1. Пользователь скидывает скриншот в чат.
+2. Агент сохраняет его в `attachments/screen-{slug}-{YYYY-MM-DD}.png`.
+3. Агент обновляет `## Current UI`: меняет `![[...]]` на новый файл, добавляет строку в таблицу версий (старый скриншот остаётся в папке как архив).
+4. Агент добавляет запись в `log.md`:
+   ```
+   ## [YYYY-MM-DD] dev | UI screenshot — Screen - <Name>
+   - Добавлен скриншот v{N}: [[screen-{slug}-{YYYY-MM-DD}.png]]
+   - Изменения: <кратко>
+   ```
+
+**Placeholder до получения скриншота:**
+```markdown
+> _Скриншот ожидается — положи файл в `attachments/` и замени эту строку на `![[screen-{slug}-YYYY-MM-DD.png]]`._
 ```
 
 ---

@@ -288,3 +288,25 @@
 - Таб-бар теперь парит над контентом в виде пилл-острова (как Instagram), не прилегая к краям экрана.
 - Неактивные айтемы: `pillColor = Color.Transparent` (раньше `surface`) — фон айтема невидим на фоне острова.
 - Файл: `composeApp/src/commonMain/.../App.kt` — только `PodNavBar()` и `PodNavItem.pillColor`.
+
+## [2026-07-09] dev | PI + Jobs screen polish
+- **PI**: заменён inline-текст `"Type · Level X"` на `PlanetTypeChip` — цветной пилл-чип с цветом по типу планеты (barren/plasma/storm/oceanic/temperate/lava/ice/gas). Level остаётся текстом рядом.
+- **Jobs**: добавлен `JobStatusChip` — Active (gold) / Complete (green) / Delivered (gray). Completed jobs: прогресс-бар зелёный, label "Ready to deliver", opacity 0.75. Было: отображалось "0m".
+- Wiki: [[Screen - PI]], [[Screen - Jobs]] — Implementation notes заполнены.
+- BUILD SUCCESSFUL (compileDebugKotlinAndroid, 0 errors).
+
+## [2026-07-09] dev | Dashboard enrichment — security status, corp, SP, wallet journal, logout
+- **Code**: `shared/` — `EsiCorporationInfoDto`, `EsiCharacterSkillsDto`, `EsiWalletJournalEntryDto` (new DTOs); `WalletJournalEntry` domain model; `CharacterInfo` +3 fields (defaults 0.0/""/0L); `CharacterEsiApi` +3 methods; `CharacterRepository` — parallel ESI fetch (info+wallet+skills simultaneously, corp waits on info), `observeWalletJournal()` (emits empty first).
+- **Code**: `composeApp/` — `EveIcons.Settings` gear icon (24×24, EvenOdd); `DashboardViewModel` — 3-flow combine, `fun logout()`; `DashboardScreen` — 76 dp portrait, corp+security badge, 2-col stats (ISK+SP), gear button → ModalBottomSheet logout, recent activity card (3 journal rows, relative time).
+- No DB migration; no new ESI scopes (wallet+skills scopes already granted).
+- Wiki: [[Screen - Dashboard]] — Implementation notes filled.
+- BUILD SUCCESSFUL (compileDebugKotlinAndroid, 0 errors).
+
+## [2026-07-09] dev | UI screenshots v1 — все 4 экрана
+- Добавлены первые живые скрины с реального устройства (iOS, тёмная тема).
+- `screen-pi-2026-07-09.png` — 5 планет Yahyerer system; Barren/Plasma/Storm/Oceanic чипы работают корректно; Attention x2, Idle x3.
+- `screen-jobs-2026-07-09.png` — Fusion S Blueprint TE Research 10 runs; Complete chip зелёный, прогресс-бар 100%, "Ready to deliver".
+- `screen-dashboard-2026-07-09.png` — ToWFurious / Republic University / +0.7 sec; ISK 99.97M + SP 32.59M; Training + Recent activity (2 записи).
+- `screen-skills-2026-07-09.png` — Coherent Ore Processing Lv4 hero bar; очередь 25 скиллов; Total 55d 5h 4m.
+- Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Dashboard]], [[Screen - Skills]] — секции Current UI заполнены.
+- Файлы нужно положить в `attachments/` вручную (бинарные PNG не записываются через агента).

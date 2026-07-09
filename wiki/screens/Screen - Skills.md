@@ -37,6 +37,14 @@ See [[UiState]].
 - Pull-to-refresh → force refresh (invalidate cached queue, re-fetch).
 - Tap a queue row → optional detail sheet (post-MVP).
 
+## Current UI
+
+![[screen-skills-2026-07-09.png]]
+
+| Версия | Дата | Что изменилось |
+|--------|------|----------------|
+| v1 | 2026-07-09 | Первая реализация: hero bar "Coherent Ore Processing → Level 4  5d 10h 20m", очередь из 25+ скиллов с номерами и временем (формат Dd Hh Mm), Total в конце |
+
 ## Implementation notes
 
 **ViewModel:** `SkillQueueViewModel` (Voyager `ScreenModel`) in `composeApp/commonMain/ui/viewmodel/`.

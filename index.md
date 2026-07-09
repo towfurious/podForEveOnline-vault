@@ -8,6 +8,7 @@
 - [[Skill Queue]] — ordered list of training skills; source of Skills screen + Dashboard training widget.
 - [[Planet]] — a PI colony; status is derived as Active / Needs Attention / Idle.
 - [[Industry Job]] — active research or manufacturing job.
+- [[WalletJournalEntry]] — one wallet journal transaction; `displayName` maps ESI `ref_type` → readable label.
 
 ## Concepts
 - [[OAuth2 PKCE]] — public-client OAuth2 extension we use for EVE SSO.
@@ -37,6 +38,9 @@
 - [[ESI Scopes MVP]] — the 5 OAuth scopes for MVP (per-endpoint pages added when wired in data-layer plan).
 - [[ESI - Skills - Get Skill Queue]] — GET /v2/characters/{id}/skillqueue/ — requires esi-skills.read_skillqueue.v1.
 - [[ESI - Universe - Get Type]] — GET /v3/universe/types/{type_id}/ — public; resolves skill_id → name.
+- GET /v4/corporations/{id}/ — public; fetches corp name for Dashboard header.
+- GET /v4/characters/{id}/skills/ — requires esi-skills.read_skills.v1; returns total_sp.
+- GET /v6/characters/{id}/wallet/journal/ — requires esi-wallet.read_character_wallet.v1; last 3 entries on Dashboard.
 
 ## Screens
 - [[Screen - Dashboard]] — portrait, ISK, current training, PI/jobs summary.
@@ -56,13 +60,16 @@
 
 ## Open threads
 - Per-endpoint ESI pages (list grows during data-layer plan; two added so far).
-- [[Screen - Dashboard]] — implementation notes empty; stub only.
-- [[Screen - PI]] — not started.
-- [[Screen - Jobs]] — not started.
 - iOS CI secret injection — `Secrets.xcconfig` with `ESI_CLIENT_ID` must be provided in CI; not yet documented as a runbook.
 - Android CI secret injection — `local.properties` with `esi.client_id` must be provided in CI; not yet set up.
 - AGP 9.0 KMP migration — `com.android.library` + `org.jetbrains.kotlin.multiplatform` deprecated; must migrate to `com.android.kotlin.multiplatform.library` before AGP 10.0. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].
 - `@Preview` CMP 1.11 migration — `org.jetbrains.compose.ui.tooling.preview.Preview` deprecated; migrate to `androidx.compose.ui.tooling.preview.Preview` from `org.jetbrains.compose.ui:ui-tooling-preview`.
+
+### Resolved (2026-07-09) — All MVP screens implemented
+- ~~[[Screen - Dashboard]] — implementation notes empty; stub only~~ — implemented: 76dp portrait, corp name, security badge, gear+logout sheet, 2-col stats (ISK+SP), training card, recent activity card.
+- ~~[[Screen - PI]] — not started~~ — implemented: planet type chips (colored by type), status chips, extractor/factory rows.
+- ~~[[Screen - Jobs]] — not started~~ — implemented: status chips (Active/Complete/Delivered), green progress bar for complete, "Ready to deliver" label, 0.75 opacity for non-active cards.
+- ~~[[Screen - Skills]] — not started~~ — implemented: live progress bar + full queue list.
 
 ### Resolved (2026-07-09) — Stack upgrade milestone
 - ~~**Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Ktor 3.x + Koin 4.x**~~ — full stack at max compatible versions. App launches on both Android and iOS. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].

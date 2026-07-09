@@ -4,7 +4,7 @@ type: screen
 tags: [screen, pi, planet, pi-extractor, pi-factory, layer-ui, mvp]
 aliases: [PI, Planetary Interaction, Planets]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-09
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -40,8 +40,21 @@ See [[UiState]].
 - Pull-to-refresh → force refresh planets.
 - Tap card → planet detail sheet with full pin layout (post-MVP; MVP shows summary only).
 
+## Current UI
+
+![[screen-pi-2026-07-09.png]]
+
+| Версия | Дата | Что изменилось |
+|--------|------|----------------|
+| v1 | 2026-07-09 | Первая реализация: цветные PlanetTypeChip по типу планеты (Barren=золото, Plasma=красный, Storm=фиолетовый, Oceanic=синий), StatusChip Attention/Idle, карточки с именем планеты + тип + уровень + время обновления |
+
 ## Implementation notes
-*(filled during dev — VM, use cases, status logic, tests)*
+**File**: `composeApp/src/commonMain/.../ui/screen/PiScreen.kt`
+- `PlanetCard` — card per planet; Column + StatusChip row layout.
+- `StatusChip` — ACTIVE/NEEDS_ATTENTION/IDLE derived from `planet.status(now)`.
+- `PlanetTypeChip` — colored pill for planet type; color pairs hardcoded per type (barren/plasma/storm/oceanic/temperate/lava/ice/gas). Falls back to `surfaceContainerHighest`/`onSurfaceVariant` for unknown types.
+- ViewModel: `PlanetViewModel` (koin `koinScreenModel`).
+- `Planet.lastUpdateText(now)` and `Planet.status(now)` are domain methods, no UI logic.
 
 ## Related
 - ViewModel: `PiViewModel` (to create).

@@ -4,7 +4,7 @@ type: screen
 tags: [screen, jobs, industry-job, layer-ui, mvp]
 aliases: [Jobs, Industry]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-09
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -42,8 +42,23 @@ See [[UiState]].
 - Pull-to-refresh → force refresh jobs.
 - Tap row → job detail (post-MVP).
 
+## Current UI
+
+![[screen-jobs-2026-07-09.png]]
+
+| Версия | Дата | Что изменилось |
+|--------|------|----------------|
+| v1 | 2026-07-09 | Первая реализация: JobStatusChip Complete (зелёный), зелёный прогресс-бар 100%, "Ready to deliver" label, тип работы (TE Research) + количество ранов |
+
 ## Implementation notes
-*(filled during dev — VM, repositories, name resolvers, tests)*
+**File**: `composeApp/src/commonMain/.../ui/screen/JobsScreen.kt`
+- `JobCard` — card per job; uses `SkillProgressCalculator.snapshot(start, end)` (ticks every 60 s via `produceState`).
+- `JobStatusChip` — derives state from `job.status + snapshot.progress`:
+  - `status == "active" && progress < 1.0` → "Active" (gold chip)
+  - `status == "active" && progress >= 1.0` → "Complete" (green chip); progress bar turns green; label shows "Ready to deliver"
+  - any other status (delivered/cancelled/…) → capitalized status string (gray chip); card opacity 0.75
+- Cards with `!isActive` are rendered at `alpha(0.75f)` to visually de-emphasize finished work.
+- ViewModel: `IndustryJobViewModel` (koin `koinScreenModel`).
 
 ## Related
 - ViewModel: `JobsViewModel` (to create).
