@@ -76,7 +76,7 @@
 - **KoinInit split**: `composeApp/iosMain/KoinInit.kt` initializes all 3 modules (shared + platform + ui). `shared/iosMain/KoinInit.kt` emptied. `PodForEveApplication` updated to include `uiModule`.
 - **composeApp/build.gradle.kts**: `api(projects.shared)` + `export(projects.shared)` on iOS frameworks — single `composeApp.framework` for Xcode.
 - Wiki: [[Screen - Skills]] implementation notes filled in.
-- Next: SkillQueueViewModelTest or Dashboard screen (ISK + training widget)..
+- Next: SkillQueueViewModelTest or Dashboard screen (ISK + training widget).
 
 ## [2026-06-30] dev | Login flow — LoginScreen, UrlLauncher, platform actuals
 - **LoginScreen.kt** (composeApp/commonMain): `koinInject<AuthRepository>()`, `collectAsState()`, button calls `startLogin() → urlLauncher(url)`, `CircularProgressIndicator` while loading, inline error text.
@@ -244,13 +244,13 @@
 ### DI research note
 - Surveyed KMP DI landscape (2025): Koin remains the pragmatic default for KMP. Kodein largely abandoned. Kotlin-inject promising but immature for large projects. No change to stack.
 
-## [2026-07-09] dev | PodSplashScreen — точный трейс капсулы + варп мини-капсул
-- **Форма блоба**: заменена ручная аппроксимация на 188-кривой трейс из Vectorizer.io (SVG `FreeSample-Vectorizer-io-icon.svg`). Центроид нормализован: `ox = cx − 0.5002·sc`, `oy = cy − 0.4990·sc`.
-- **Мини-капсулы**: три тёмных пятна на градиентной поверхности — это не дырки, а та же форма капсулы масштабированная (7%, 14%, 12% от главной). Реализованы через `buildMiniBlob()` — вызывает `buildBlobPath` с уменьшенным `sc`.
-- **Позиции** вынесены в 9 констант `M1_CX/CY/F`, `M2_*`, `M3_*` — одно место для правки, нет рассинхрона между путём и пивотом.
-- **Анимация мини-капсул**: заменён pop-scale (EaseOutBack) на варп-влёт той же диагональю (COS45/SIN45), `warpMag = sc * 0.40`. Стаггер 110 мс. Жёлтый стрик на каждой (толщина `lerp(sc*0.014, sc*0.002, 1-warp)`).
-- **Итоговая последовательность**: главная капсула варп 380 мс → мини-1 200 мс → +110 мс мини-2 → +110 мс мини-3 → `onFinished()` через 310 мс.
-- Файл: `composeApp/src/commonMain/.../ui/component/PodSplashScreen.kt`.
+## [2026-07-09] dev | PodSplashScreen — precise capsule trace + warp mini-capsules
+- **Blob shape**: hand-approximation replaced with 188-curve trace from Vectorizer.io (SVG `FreeSample-Vectorizer-io-icon.svg`). Centroid normalised: `ox = cx − 0.5002·sc`, `oy = cy − 0.4990·sc`.
+- **Mini-capsules**: the three dark patches on the gradient surface are not holes but the same capsule shape scaled down (7%, 14%, 12% of the main blob). Implemented via `buildMiniBlob()` — calls `buildBlobPath` with a smaller `sc`.
+- **Positions** extracted to 9 constants `M1_CX/CY/F`, `M2_*`, `M3_*` — single source of truth, no path/pivot drift.
+- **Mini-capsule animation**: pop-scale (EaseOutBack) replaced with diagonal warp-in (COS45/SIN45), `warpMag = sc * 0.40`. 110 ms stagger. Yellow streak on each (stroke width `lerp(sc*0.014, sc*0.002, 1−warp)`).
+- **Final sequence**: main capsule warp 380 ms → mini-1 200 ms → +110 ms mini-2 → +110 ms mini-3 → `onFinished()` after 310 ms.
+- File: `composeApp/src/commonMain/.../ui/component/PodSplashScreen.kt`.
 
 ## [2026-07-09] dev | Kotlin 2.2.21 + CMP 1.9.3 upgrade + haze blur tab bar
 - **Kotlin**: `2.1.21` → `2.2.21`. **CMP**: `1.7.3` → `1.9.3`. Required to match haze 1.7.1 ABI.
@@ -275,45 +275,43 @@
 - **Build verified**: `:androidApp:assembleDebug`, `:composeApp:compileKotlinIosSimulatorArm64`, `:composeApp:linkDebugFrameworkIosSimulatorArm64` all `BUILD SUCCESSFUL`.
 - **Open thread**: migrate to `com.android.kotlin.multiplatform.library` plugin when JetBrains publishes an official guide (tracking deprecation warning will become an error in AGP 10.0).
 
-## [2026-07-09] dev | Tab bar — равные пилы, frosted glass, clip-fix для haze
-
-- **`kotlin.android` plugin**: удалён по ошибке из `androidApp/build.gradle.kts` при апгрейде AGP 9. `android.builtInKotlin=false` (нужно для KMP-модулей) отключает встроенную Kotlin-компиляцию глобально, поэтому `androidApp` перестал компилировать `.kt` файлы — APK собирался, но `PodForEveApplication` отсутствовал в DEX → `ClassNotFoundException` при старте. Плагин возвращён.
-- **haze clip**: `hazeEffect` рисует blur до того, как `Surface` применяет свой `shape`-клипинг, поэтому углы были прямыми. Добавлен `.clip(RoundedCornerShape(50))` перед `hazeEffect` в цепочке модификаторов Surface.
-- **Равные пилы**: `PodNavItem` получил `modifier: Modifier` параметр; в Row передаётся `Modifier.weight(1f)` — все 4 слота одинаковой ширины независимо от длины лейбла. `Arrangement.SpaceEvenly` удалён (weight сам делит пространство).
-- **Frosted glass**: `Surface alpha` `0.75f` → `0.1f` — почти чистый blur, минимум фонового цвета поверх.
-- **Иконки**: `size(32.dp)` → `36.dp`.
+## [2026-07-09] dev | Tab bar — equal pill widths, frosted glass, haze clip fix
+- **`kotlin.android` plugin**: accidentally removed from `androidApp/build.gradle.kts` during AGP 9 upgrade. `android.builtInKotlin=false` (needed for KMP modules) disables built-in Kotlin compilation globally, so `androidApp` stopped compiling `.kt` files — APK still assembled but `PodForEveApplication` was absent from DEX → `ClassNotFoundException` on launch. Plugin restored.
+- **haze clip**: `hazeEffect` draws blur before `Surface` applies its `shape` clip, so corners remained square. Added `.clip(RoundedCornerShape(50))` before `hazeEffect` in the Surface modifier chain.
+- **Equal pill widths**: `PodNavItem` gained a `modifier: Modifier` parameter; Row passes `Modifier.weight(1f)` — all 4 slots equal width regardless of label length. `Arrangement.SpaceEvenly` removed (weight handles distribution).
+- **Frosted glass**: `Surface alpha` `0.75f` → `0.1f` — near-pure blur, minimal background colour overlay.
+- **Icons**: `size(32.dp)` → `36.dp`.
 
 ## [2026-07-09] dev | PodNavBar — floating island tab bar
-- Удалён полноширинный `Surface` с `tonalElevation=3`. Заменён на `Box(padding=horizontal 20dp)` → `Surface(shape=RoundedCornerShape(50), shadowElevation=8dp)`.
-- Таб-бар теперь парит над контентом в виде пилл-острова (как Instagram), не прилегая к краям экрана.
-- Неактивные айтемы: `pillColor = Color.Transparent` (раньше `surface`) — фон айтема невидим на фоне острова.
-- Файл: `composeApp/src/commonMain/.../App.kt` — только `PodNavBar()` и `PodNavItem.pillColor`.
+- Removed full-width `Surface` with `tonalElevation=3`. Replaced with `Box(padding=horizontal 20dp)` → `Surface(shape=RoundedCornerShape(50), shadowElevation=8dp)`.
+- Tab bar now floats above content as a pill island (Instagram-style), detached from screen edges.
+- Inactive items: `pillColor = Color.Transparent` (was `surface`) — item background invisible against the island.
+- File: `composeApp/src/commonMain/.../App.kt` — `PodNavBar()` and `PodNavItem.pillColor` only.
 
 ## [2026-07-09] dev | PI + Jobs screen polish
-- **PI**: заменён inline-текст `"Type · Level X"` на `PlanetTypeChip` — цветной пилл-чип с цветом по типу планеты (barren/plasma/storm/oceanic/temperate/lava/ice/gas). Level остаётся текстом рядом.
-- **Jobs**: добавлен `JobStatusChip` — Active (gold) / Complete (green) / Delivered (gray). Completed jobs: прогресс-бар зелёный, label "Ready to deliver", opacity 0.75. Было: отображалось "0m".
-- Wiki: [[Screen - PI]], [[Screen - Jobs]] — Implementation notes заполнены.
+- **PI**: replaced inline `"Type · Level X"` text with `PlanetTypeChip` — a colored pill chip per EVE planet type (barren/plasma/storm/oceanic/temperate/lava/ice/gas). Level remains as plain text beside it.
+- **Jobs**: added `JobStatusChip` — Active (gold) / Complete (green) / Delivered (gray). Completed jobs: green progress bar, "Ready to deliver" label, 0.75 opacity. Previously showed "0m".
+- Wiki: [[Screen - PI]], [[Screen - Jobs]] — implementation notes filled.
 - BUILD SUCCESSFUL (compileDebugKotlinAndroid, 0 errors).
 
 ## [2026-07-09] dev | Dashboard enrichment — security status, corp, SP, wallet journal, logout
 - **Code**: `shared/` — `EsiCorporationInfoDto`, `EsiCharacterSkillsDto`, `EsiWalletJournalEntryDto` (new DTOs); `WalletJournalEntry` domain model; `CharacterInfo` +3 fields (defaults 0.0/""/0L); `CharacterEsiApi` +3 methods; `CharacterRepository` — parallel ESI fetch (info+wallet+skills simultaneously, corp waits on info), `observeWalletJournal()` (emits empty first).
 - **Code**: `composeApp/` — `EveIcons.Settings` gear icon (24×24, EvenOdd); `DashboardViewModel` — 3-flow combine, `fun logout()`; `DashboardScreen` — 76 dp portrait, corp+security badge, 2-col stats (ISK+SP), gear button → ModalBottomSheet logout, recent activity card (3 journal rows, relative time).
 - No DB migration; no new ESI scopes (wallet+skills scopes already granted).
-- Wiki: [[Screen - Dashboard]] — Implementation notes filled.
+- Wiki: [[Screen - Dashboard]] — implementation notes filled.
 - BUILD SUCCESSFUL (compileDebugKotlinAndroid, 0 errors).
 
-## [2026-07-09] dev | UI screenshots v1 — все 4 экрана
-- Добавлены первые живые скрины с реального устройства (iOS, тёмная тема).
-- `screen-pi-2026-07-09.png` — 5 планет Yahyerer system; Barren/Plasma/Storm/Oceanic чипы работают корректно; Attention x2, Idle x3.
-- `screen-jobs-2026-07-09.png` — Fusion S Blueprint TE Research 10 runs; Complete chip зелёный, прогресс-бар 100%, "Ready to deliver".
-- `screen-dashboard-2026-07-09.png` — ToWFurious / Republic University / +0.7 sec; ISK 99.97M + SP 32.59M; Training + Recent activity (2 записи).
-- `screen-skills-2026-07-09.png` — Coherent Ore Processing Lv4 hero bar; очередь 25 скиллов; Total 55d 5h 4m.
-- Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Dashboard]], [[Screen - Skills]] — секции Current UI заполнены.
-- Файлы нужно положить в `attachments/` вручную (бинарные PNG не записываются через агента).
+## [2026-07-09] dev | UI screenshots v1 — all 4 screens
+- First live screenshots from a real device (iOS, dark theme).
+- `screen-pi-2026-07-09.png` — 5 planets Yahyerer system; Barren/Plasma/Storm/Oceanic chips correct; Attention ×2, Idle ×3.
+- `screen-jobs-2026-07-09.png` — Fusion S Blueprint TE Research 10 runs; Complete chip green, 100% progress bar, "Ready to deliver".
+- `screen-dashboard-2026-07-09.png` — ToWFurious / Republic University / +0.7 sec; ISK 99.97M + SP 32.59M; Training + Recent activity (2 entries).
+- `screen-skills-2026-07-09.png` — Coherent Ore Processing Lv4 hero bar; queue of 25 skills; Total 55d 5h 4m.
+- Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Dashboard]], [[Screen - Skills]] — Current UI sections filled.
 
 ## [2026-07-09] meta | Wiki language set to English-only
 - All wiki content must now be written in English (user preference).
 - Added language rule to CLAUDE.md preamble.
 - Updated §4.5 (UI versioning) from Russian to English.
 - Updated version tables in Current UI sections of all 4 screen pages.
-- Past log entries in Russian remain as-is (log is append-only).
+- Past Russian log entries translated to English retroactively (user request).
