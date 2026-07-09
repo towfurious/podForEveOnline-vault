@@ -41,9 +41,9 @@ See [[UiState]].
 
 ![[screen-skills-2026-07-09.png]]
 
-| Версия | Дата | Что изменилось |
-|--------|------|----------------|
-| v1 | 2026-07-09 | Первая реализация: hero bar "Coherent Ore Processing → Level 4  5d 10h 20m", очередь из 25+ скиллов с номерами и временем (формат Dd Hh Mm), Total в конце |
+| Version | Date | Changes |
+|---------|------|---------|
+| v1 | 2026-07-09 | Initial implementation: hero bar "Coherent Ore Processing → Level 4  5d 10h 20m", numbered queue of 25+ skills with remaining time (Dd Hh Mm format), Total row at bottom |
 
 ## Implementation notes
 

@@ -49,9 +49,9 @@ See [[UiState]] and [[ADR-009 - UiState Sealed Class with Shimmer]].
 
 ![[screen-dashboard-2026-07-09.png]]
 
-| Версия | Дата | Что изменилось |
-|--------|------|----------------|
-| v1 | 2026-07-09 | Первая реализация: портрет (76dp), corp "Republic University", security badge "+0.7" (gold), gear ⚙, ISK Balance 99.97M ISK (gold) + Skill Points 32.59M SP, training card с прогресс-баром, recent activity (Skill purchase / Market Escrow) |
+| Version | Date | Changes |
+|---------|------|---------|
+| v1 | 2026-07-09 | Initial implementation: 76dp portrait, corp name, security badge (gold +0.7), gear icon, ISK Balance + Skill Points stat cards, training card with progress bar, recent activity (Skill purchase / Market Escrow) |
 
 ## Implementation notes
 **File**: `composeApp/src/commonMain/.../ui/screen/DashboardScreen.kt`

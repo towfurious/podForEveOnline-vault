@@ -44,9 +44,9 @@ See [[UiState]].
 
 ![[screen-pi-2026-07-09.png]]
 
-| Версия | Дата | Что изменилось |
-|--------|------|----------------|
-| v1 | 2026-07-09 | Первая реализация: цветные PlanetTypeChip по типу планеты (Barren=золото, Plasma=красный, Storm=фиолетовый, Oceanic=синий), StatusChip Attention/Idle, карточки с именем планеты + тип + уровень + время обновления |
+| Version | Date | Changes |
+|---------|------|---------|
+| v1 | 2026-07-09 | Initial implementation: colored PlanetTypeChip per EVE type (Barren=gold, Plasma=red, Storm=purple, Oceanic=blue), Attention/Idle status chips, cards with planet name + type + level + last-update time |
 
 ## Implementation notes
 **File**: `composeApp/src/commonMain/.../ui/screen/PiScreen.kt`

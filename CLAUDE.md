@@ -2,6 +2,8 @@
 
 > **Schema and operating manual for the LLM Wiki agent maintaining this Obsidian vault.**
 > Any Claude Code (or other LLM) session opening this vault MUST read this file first. It defines your role, the vault layout, conventions, and the workflows you follow when ingesting sources, answering queries, linting, and integrating with code work.
+>
+> **Language rule: all wiki content MUST be written in English.** This applies to page bodies, frontmatter descriptions, table headers, log entries, comments, and version notes. The user may communicate in any language; the wiki is always English.
 
 ---
 
@@ -285,39 +287,39 @@ Before claiming a dev task complete, ask yourself: *are there wiki updates owed?
 
 ### 4.5 UI screenshot versioning
 
-Каждая screen-страница содержит секцию `## Current UI` с актуальным скриншотом и таблицей версий.
+Every screen page has a `## Current UI` section with the latest screenshot and a version history table.
 
-**Папка:** `vault/attachments/` (Obsidian читает её нативно через `![[filename]]`).
+**Folder:** `vault/attachments/` (Obsidian renders images natively via `![[filename]]`).
 
-**Соглашение по именованию:** `screen-{slug}-{YYYY-MM-DD}.png`
-Примеры: `screen-dashboard-2026-07-09.png`, `screen-pi-2026-07-10.png`.
+**Naming convention:** `screen-{slug}-{YYYY-MM-DD}.png`
+Examples: `screen-dashboard-2026-07-09.png`, `screen-pi-2026-07-10.png`.
 
-**Структура секции:**
+**Section structure:**
 ```markdown
 ## Current UI
 
 ![[screen-dashboard-2026-07-09.png]]
 
-| Версия | Дата | Что изменилось |
-|--------|------|----------------|
-| v2 | 2026-07-10 | +новая фича |
-| v1 | 2026-07-09 | Первая реализация |
+| Version | Date | Changes |
+|---------|------|---------|
+| v2 | 2026-07-10 | Added new feature |
+| v1 | 2026-07-09 | Initial implementation |
 ```
 
-**Рабочий процесс при обновлении UI:**
-1. Пользователь скидывает скриншот в чат.
-2. Агент сохраняет его в `attachments/screen-{slug}-{YYYY-MM-DD}.png`.
-3. Агент обновляет `## Current UI`: меняет `![[...]]` на новый файл, добавляет строку в таблицу версий (старый скриншот остаётся в папке как архив).
-4. Агент добавляет запись в `log.md`:
+**Workflow when UI changes:**
+1. User drops a screenshot into chat.
+2. Agent saves it to `attachments/screen-{slug}-{YYYY-MM-DD}.png`.
+3. Agent updates `## Current UI`: swaps `![[...]]` to the new file, appends a row to the version table (old screenshot stays in folder as archive).
+4. Agent appends to `log.md`:
    ```
    ## [YYYY-MM-DD] dev | UI screenshot — Screen - <Name>
-   - Добавлен скриншот v{N}: [[screen-{slug}-{YYYY-MM-DD}.png]]
-   - Изменения: <кратко>
+   - Added screenshot v{N}: [[screen-{slug}-{YYYY-MM-DD}.png]]
+   - Changes: <brief description>
    ```
 
-**Placeholder до получения скриншота:**
+**Placeholder before screenshot is received:**
 ```markdown
-> _Скриншот ожидается — положи файл в `attachments/` и замени эту строку на `![[screen-{slug}-YYYY-MM-DD.png]]`._
+> _Screenshot pending — save the file to `attachments/` and replace this line with `![[screen-{slug}-YYYY-MM-DD.png]]`._
 ```
 
 ---

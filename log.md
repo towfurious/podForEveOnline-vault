@@ -310,3 +310,10 @@
 - `screen-skills-2026-07-09.png` — Coherent Ore Processing Lv4 hero bar; очередь 25 скиллов; Total 55d 5h 4m.
 - Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Dashboard]], [[Screen - Skills]] — секции Current UI заполнены.
 - Файлы нужно положить в `attachments/` вручную (бинарные PNG не записываются через агента).
+
+## [2026-07-09] meta | Wiki language set to English-only
+- All wiki content must now be written in English (user preference).
+- Added language rule to CLAUDE.md preamble.
+- Updated §4.5 (UI versioning) from Russian to English.
+- Updated version tables in Current UI sections of all 4 screen pages.
+- Past log entries in Russian remain as-is (log is append-only).

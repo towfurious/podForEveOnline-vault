@@ -46,9 +46,9 @@ See [[UiState]].
 
 ![[screen-jobs-2026-07-09.png]]
 
-| Версия | Дата | Что изменилось |
-|--------|------|----------------|
-| v1 | 2026-07-09 | Первая реализация: JobStatusChip Complete (зелёный), зелёный прогресс-бар 100%, "Ready to deliver" label, тип работы (TE Research) + количество ранов |
+| Version | Date | Changes |
+|---------|------|---------|
+| v1 | 2026-07-09 | Initial implementation: Complete chip (green), 100% green progress bar, "Ready to deliver" label, job type (TE Research) + run count |
 
 ## Implementation notes
 **File**: `composeApp/src/commonMain/.../ui/screen/JobsScreen.kt`
