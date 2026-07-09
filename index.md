@@ -28,6 +28,7 @@
 - [[ADR-009 - UiState Sealed Class with Shimmer]] — UI state contract and Modifier-based shimmer.
 - [[ADR-010 - Platform Targets]] — Android minSdk 28, iOS deployment target 16.0.
 - [[ADR-011 - Secrets via expect-actual and local.properties]] — CLIENT_ID injected via BuildConfig (Android) and NSBundle/xcconfig (iOS); never committed.
+- [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]] — Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Gradle 9.4.1 + Ktor 3.x; AGP 9.0 KMP compat via bypass properties; migration to `com.android.kotlin.multiplatform.library` deferred.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.
@@ -60,8 +61,22 @@
 - [[Screen - Jobs]] — not started.
 - iOS CI secret injection — `Secrets.xcconfig` with `ESI_CLIENT_ID` must be provided in CI; not yet documented as a runbook.
 - Android CI secret injection — `local.properties` with `esi.client_id` must be provided in CI; not yet set up.
+- AGP 9.0 KMP migration — `com.android.library` + `org.jetbrains.kotlin.multiplatform` deprecated; must migrate to `com.android.kotlin.multiplatform.library` before AGP 10.0. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].
+- `@Preview` CMP 1.11 migration — `org.jetbrains.compose.ui.tooling.preview.Preview` deprecated; migrate to `androidx.compose.ui.tooling.preview.Preview` from `org.jetbrains.compose.ui:ui-tooling-preview`.
 
-### Resolved (2026-07-08)
+### Resolved (2026-07-09) — Stack upgrade milestone
+- ~~**Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Ktor 3.x + Koin 4.x**~~ — full stack at max compatible versions. App launches on both Android and iOS. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].
+
+### Resolved (2026-07-08) — iOS first-run build blockers
+- ~~**SQLite linker error**~~ — `OTHER_LDFLAGS = "-lsqlite3"` added to both target configs. See [[Platform - iOS]].
+- ~~**"Multiple commands produce Info.plist"**~~ — moved `Info.plist` to `Configuration/` (outside `PBXFileSystemSynchronizedRootGroup`). See [[Platform - iOS]].
+- ~~**ESI SSO `client_id` missing**~~ — `Secrets.xcconfig` → `Info.plist` → `NSBundle` chain wired. See [[ADR-011 - Secrets via expect-actual and local.properties]] and [[Platform - iOS]].
+- ~~**OAuth callback "address is invalid"**~~ — `CFBundleURLTypes` with `eveauth-podforeve` scheme added to `Info.plist`. See [[Platform - iOS]].
+- ~~**`PlistSanityCheck` SIGABRT (UISceneConfigurations)**~~ — removed empty `UISceneConfigurations` dict. See [[Platform - iOS]].
+- ~~**`PlistSanityCheck` SIGABRT (CADisableMinimumFrameDurationOnPhone)**~~ — added key to `Info.plist`. See [[Platform - iOS]].
+- ~~**iOS app working end-to-end**~~ — SSO login, token exchange, ESI data fetch all confirmed working on iOS Simulator.
+
+### Resolved (2026-07-08) — earlier
 - ~~**Xcode project missing**~~ — `iosApp.xcodeproj` exists and is wired to KMP via `embedAndSignAppleFrameworkForXcode` build phase.
 - ~~**Chucker sync**~~ — Android build confirmed working. Chucker pinned to `4.1.0` (4.3.1 compiled with Kotlin 2.3.x metadata, incompatible with KGP 2.1.x).
 - ~~**CLIENT_ID in git**~~ — removed via orphan-branch force push; now injected via expect/actual + local.properties/xcconfig. See [[ADR-011 - Secrets via expect-actual and local.properties]].

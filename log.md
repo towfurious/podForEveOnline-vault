@@ -115,6 +115,26 @@
 - Open threads logged: per-endpoint ESI pages pending, dev-portal registration status, min API / deployment target, SQLDelight versioning strategy, Compose MP iOS M3 audit.
 - Key changes: all nine MVP architectural decisions captured as accepted ADRs; all four MVP screens have living pages ready to accept implementation notes during dev.
 
+## [2026-07-08] dev | UI polish — safe areas, portrait loading, timer format
+- **White safe areas**: SwiftUI `ZStack` with `Color(20,18,24).ignoresSafeArea()` behind `ContentView` closes status-bar and home-indicator gaps.
+- **NavigationBar color**: `containerColor = MaterialTheme.colorScheme.surface` — tab bar now matches app background, bottom strip seamless.
+- **Portrait loading on iOS**: `coil-network-ktor2` added to `iosMain` deps. `initCoil()` in `MainViewController.kt` registers `KtorNetworkFetcherFactory(HttpClient(Darwin))` as Coil singleton before first frame. Called from Swift `init()` after `doInitKoin()`. Note: `MainViewControllerKt.initCoil()` → ObjC mangling → `doInitCoil()` in generated header.
+- **Timer format**: Added `formatDhm()` alongside `formatHms()`. Queue rows and Jobs screen show `10d 3h 18m`; active-skill header keeps `h m s` precision. EVE-standard convention (days when > 24 h).
+- **Training card overflow**: `Modifier.weight(1f)` + `maxLines=1` + `TextOverflow.Ellipsis` on skill name text — timer no longer overflows the row.
+- Wiki: no new pages; changes are implementation detail.
+
+## [2026-07-08] dev | iOS first-run build — 6 blockers resolved, app working end-to-end
+- **SQLite linker**: added `OTHER_LDFLAGS = "-lsqlite3"` to both Debug/Release target build configs in `project.pbxproj`. Root cause: static KMP framework doesn't propagate C-interop system lib dependencies.
+- **"Multiple commands produce Info.plist"**: moved `Info.plist` to `iosApp/iosApp/Configuration/` (outside `PBXFileSystemSynchronizedRootGroup` auto-synced dir). Set `GENERATE_INFOPLIST_FILE = NO`, `INFOPLIST_FILE = Configuration/Info.plist`.
+- **ESI `client_id` missing**: wired `Configuration/Secrets.xcconfig` (gitignored, `ESI_CLIENT_ID = …`) as `baseConfigurationReference` in pbxproj. `Info.plist` has `$(ESI_CLIENT_ID)` which Xcode expands at build time.
+- **OAuth callback "address is invalid"**: registered `eveauth-podforeve` scheme in `CFBundleURLTypes` in `Info.plist`.
+- **`PlistSanityCheck` SIGABRT ×2**:
+  - Remove empty `UISceneConfigurations: {}` from `UIApplicationSceneManifest`.
+  - Add `CADisableMinimumFrameDurationOnPhone = true`. Confirmed these are the only two checks in CMP 1.7.3 via binary search (UTF-16 strings) of the linked dylib.
+- **ObjC name mangling**: `initKoin()` → `KoinInitKt.doInitKoin()` in Swift (`init`-prefix gets `do` prepended by Kotlin/Native codegen).
+- **Result**: iOS Simulator app launches, completes EVE SSO, fetches ESI data (skills, wallet, skill queue) — all confirmed in console logs.
+- Wiki: [[Platform - iOS]] major update (new "Xcode build gotchas" section); `index.md` open threads updated.
+
 ## [2026-07-08] meta | PostCompact vault auto-reload hook
 - Added `PostCompact` hook to `.claude/settings.local.json`: reads `index.md` + tail of `log.md` and injects content as `additionalContext` after every context compaction.
 - Created `CLAUDE.md` at `PodForEve/` root: loads at session start, instructs agent to read vault.
@@ -149,6 +169,28 @@
 - Problem: 48dp PNG foreground scaled ×2.25 to fill 108dp adaptive canvas, extending beyond the 66dp safe zone and appearing cropped on device.
 - Fix: wrapped foreground drawable in `<inset android:inset="28%"/>` in `ic_launcher.xml` and `ic_launcher_round.xml`. Reduces effective display size to ~48dp (1:1 scale), fitting within safe zone.
 - New pod-shaped vector icon created as `ic_launcher_foreground_pod.xml` (EVE capsule design) but not yet activated as adaptive foreground.
+
+## [2026-07-08] dev | App icons — LANCZOS downscale from 512px source + monochrome
+- **Source**: `podForEveOnline/02_icon/ic_launcher_APP.png` (512×512 rendered PNG).
+- **Android legacy icons** (LANCZOS downscale via PIL): `mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher{,_round}.png` at 48/72/96/144/192px.
+- **Android adaptive foreground** (108dp canvas sizes): `mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher_foreground.png` at 108/162/216/324/432px. Removed `<inset>` wrapper from `ic_launcher{,_round}.xml` — foreground now proper canvas size.
+- **Monochrome icon**: `drawable/ic_launcher_monochrome.png` — pixels with color distance > 28 from background `#22112F` become white, others transparent. Used for Android 13+ themed icons.
+- **iOS AppIcon**: `AppIcon_1024.png` (sips from 512px source) for light+dark slots; `AppIcon_1024_tinted.png` (grayscale) for tinted slot. `Contents.json` updated with `filename` fields for all 3 universal slots.
+- **`ic_launcher.xml` / `ic_launcher_round.xml`**: removed inset wrapper, added `<monochrome>` element pointing to `@drawable/ic_launcher_monochrome`.
+
+## [2026-07-08] dev | Warp-in splash screen — vtracer-traced bezier paths
+- **Concept**: pod blob drops from top-right diagonally to center (warp streak effect), then 3 dark port-holes spring-pop in one-by-one with 130ms stagger — EVE hyperspace exit aesthetic.
+- **Path accuracy**: `ic_launcher_APP.png` → white-on-black silhouette → `vtracer` → SVG → parsed to Kotlin `Path` API. Blob = 96 `cubicTo` calls traced from actual icon contour; 3 hole paths traced from actual oval ports.
+- **`PodSplashScreen.kt`** (`composeApp/commonMain/…/ui/component/`):
+  - `Animatable` `shellOffset`/`shellAlpha` for blob warp-in (420 ms `EaseOutExpo` tween).
+  - `hole1/2/3Scale` spring-pop (dampingRatio 0.60, stiffness 480/400/340).
+  - `drawWarpStreak`: gradient `Color(0x00F5D060)` → `0xFFE8CC60` line, strokeWidth lerp 22→3.
+  - `drawPodBlob`: 5-stop radial gradient (yellow → orange → red → purple → black), rim specular rect, 15 star sparkles at SVG-traced positions, 3 hole paths scaled via `withTransform { scale(s, s, pivot) }` inside `clipPath`.
+  - Stars: real positions from vtracer subpaths (e.g. `0.607, 0.185`; `0.822, 0.439`).
+  - Hole pivots (for scale transform): H1=(0.500, 0.390), H2=(0.400, 0.547), H3=(0.603, 0.653).
+- **App.kt**: `SplashScreen()` composable → `PodSplashScreen()`.
+- Build: `./gradlew :composeApp:compileDebugKotlinAndroid` — BUILD SUCCESSFUL.
+- Wiki: no new pages; implementation detail only.
 
 ## [2026-07-08] dev | iOS build — GlobalContext fix, NSBundle import, xcode-select
 - **`GlobalContext` JVM-only**: `org.koin.core.context.GlobalContext` does not exist in Kotlin/Native. `App.kt` and `LoginScreen.kt` were using it; replaced with `org.koin.mp.KoinPlatform.getKoin()`. `AuthCallbackHandler.kt` (shared/iosMain) was already correct.
@@ -201,3 +243,48 @@
 
 ### DI research note
 - Surveyed KMP DI landscape (2025): Koin remains the pragmatic default for KMP. Kodein largely abandoned. Kotlin-inject promising but immature for large projects. No change to stack.
+
+## [2026-07-09] dev | PodSplashScreen — точный трейс капсулы + варп мини-капсул
+- **Форма блоба**: заменена ручная аппроксимация на 188-кривой трейс из Vectorizer.io (SVG `FreeSample-Vectorizer-io-icon.svg`). Центроид нормализован: `ox = cx − 0.5002·sc`, `oy = cy − 0.4990·sc`.
+- **Мини-капсулы**: три тёмных пятна на градиентной поверхности — это не дырки, а та же форма капсулы масштабированная (7%, 14%, 12% от главной). Реализованы через `buildMiniBlob()` — вызывает `buildBlobPath` с уменьшенным `sc`.
+- **Позиции** вынесены в 9 констант `M1_CX/CY/F`, `M2_*`, `M3_*` — одно место для правки, нет рассинхрона между путём и пивотом.
+- **Анимация мини-капсул**: заменён pop-scale (EaseOutBack) на варп-влёт той же диагональю (COS45/SIN45), `warpMag = sc * 0.40`. Стаггер 110 мс. Жёлтый стрик на каждой (толщина `lerp(sc*0.014, sc*0.002, 1-warp)`).
+- **Итоговая последовательность**: главная капсула варп 380 мс → мини-1 200 мс → +110 мс мини-2 → +110 мс мини-3 → `onFinished()` через 310 мс.
+- Файл: `composeApp/src/commonMain/.../ui/component/PodSplashScreen.kt`.
+
+## [2026-07-09] dev | Kotlin 2.2.21 + CMP 1.9.3 upgrade + haze blur tab bar
+- **Kotlin**: `2.1.21` → `2.2.21`. **CMP**: `1.7.3` → `1.9.3`. Required to match haze 1.7.1 ABI.
+- **haze 1.7.1** added (`dev.chrisbanes.haze:haze`). API changed: `Modifier.haze()` → `hazeSource()`, `hazeChild()` → `hazeEffect()`.
+- **`kotlinx-datetime`**: `0.6.1` → `0.7.1` (CMP 1.9.3 pulls 0.7.1 transitively; aligned explicit version to avoid split). In 0.7.1 `Clock` and `Instant` moved to `kotlin.time` package — no longer in `kotlinx.datetime`.
+- **Import migration**: all `import kotlinx.datetime.Clock` → `import kotlin.time.Clock`, `import kotlinx.datetime.Instant` → `import kotlin.time.Instant` across 10 files (both modules).
+- **`@file:OptIn(kotlin.time.ExperimentalTime::class)`** added to every file using `Clock.System`, `Instant.fromEpochSeconds`, or `Instant.parse` (7 files in shared, 4 in composeApp).
+- **Blur tab bar**: `MainApp()` creates `HazeState`; content box has `hazeSource(hazeState)`; `PodNavBar` surface has `hazeEffect(hazeState, HazeStyle(blurRadius=24.dp))`. Alpha reduced to 0.75f, `tonalElevation=0`.
+- **Build verified**: `:composeApp:compileKotlinIosSimulatorArm64` and `:composeApp:compileDebugKotlinAndroid` both `BUILD SUCCESSFUL` with zero errors.
+- Files: `gradle/libs.versions.toml`, `composeApp/build.gradle.kts`, `App.kt`, all screen files + shared repository/calculator files.
+
+## [2026-07-09] dev | Full stack upgrade — Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Ktor 3.x + Gradle 9.4.1
+
+- **Kotlin**: `2.2.21` → `2.4.0`. **CMP**: `1.9.3` → `1.11.1`. **AGP**: `8.13.2` → `9.2.0`. **Gradle**: `8.14.5` → `9.4.1`.
+- **Ktor**: `2.x` → `3.5.1`. **Koin**: `3.x` → `4.1.1`. **kotlinx-datetime**: `0.7.1` → `0.8.0`. **coil3**: `3.x` → `3.5.0`. **haze**: `1.7.1` → `1.7.2`.
+- **AGP 9.0 + KMP**: `com.android.library` + `org.jetbrains.kotlin.multiplatform` are now deprecated together (not an error yet); compat kept via `android.builtInKotlin=false` + `android.newDsl=false` in `gradle.properties`. Migration to `com.android.kotlin.multiplatform.library` deferred.
+- **`kotlin.native.useEmbeddableCompilerJar` / `kotlin.mpp.androidGradlePluginCompatibility.nowarn`**: removed from `gradle.properties` — both deprecated and no longer needed in K2.4+.
+- **CMP 1.11.1 dropped iosX64**: removed `iosX64()` from both `shared/build.gradle.kts` and `composeApp/build.gradle.kts`.
+- **CMP `compose.*` accessors**: kept (string-literal alternatives without BOM don't resolve). `compose.components.uiToolingPreview` still used; deprecation warning is non-blocking.
+- **Coil / Ktor 3**: `coil-network-ktor2` → `coil-network-ktor3`; import in `MainViewController.kt` updated from `coil3.network.ktor2` → `coil3.network.ktor3`; `@file:OptIn(coil3.annotation.ExperimentalCoilApi::class)` added.
+- **`androidApp/build.gradle.kts`**: removed `alias(libs.plugins.kotlin.android)` — AGP 9.0 has built-in Kotlin support, plugin causes an error.
+- **Build verified**: `:androidApp:assembleDebug`, `:composeApp:compileKotlinIosSimulatorArm64`, `:composeApp:linkDebugFrameworkIosSimulatorArm64` all `BUILD SUCCESSFUL`.
+- **Open thread**: migrate to `com.android.kotlin.multiplatform.library` plugin when JetBrains publishes an official guide (tracking deprecation warning will become an error in AGP 10.0).
+
+## [2026-07-09] dev | Tab bar — равные пилы, frosted glass, clip-fix для haze
+
+- **`kotlin.android` plugin**: удалён по ошибке из `androidApp/build.gradle.kts` при апгрейде AGP 9. `android.builtInKotlin=false` (нужно для KMP-модулей) отключает встроенную Kotlin-компиляцию глобально, поэтому `androidApp` перестал компилировать `.kt` файлы — APK собирался, но `PodForEveApplication` отсутствовал в DEX → `ClassNotFoundException` при старте. Плагин возвращён.
+- **haze clip**: `hazeEffect` рисует blur до того, как `Surface` применяет свой `shape`-клипинг, поэтому углы были прямыми. Добавлен `.clip(RoundedCornerShape(50))` перед `hazeEffect` в цепочке модификаторов Surface.
+- **Равные пилы**: `PodNavItem` получил `modifier: Modifier` параметр; в Row передаётся `Modifier.weight(1f)` — все 4 слота одинаковой ширины независимо от длины лейбла. `Arrangement.SpaceEvenly` удалён (weight сам делит пространство).
+- **Frosted glass**: `Surface alpha` `0.75f` → `0.1f` — почти чистый blur, минимум фонового цвета поверх.
+- **Иконки**: `size(32.dp)` → `36.dp`.
+
+## [2026-07-09] dev | PodNavBar — floating island tab bar
+- Удалён полноширинный `Surface` с `tonalElevation=3`. Заменён на `Box(padding=horizontal 20dp)` → `Surface(shape=RoundedCornerShape(50), shadowElevation=8dp)`.
+- Таб-бар теперь парит над контентом в виде пилл-острова (как Instagram), не прилегая к краям экрана.
+- Неактивные айтемы: `pillColor = Color.Transparent` (раньше `surface`) — фон айтема невидим на фоне острова.
+- Файл: `composeApp/src/commonMain/.../App.kt` — только `PodNavBar()` и `PodNavItem.pillColor`.

@@ -1,7 +1,7 @@
 ---
 title: Platform - iOS
 type: platform
-tags: [platform, ios, unusernotificationcenter, bg-app-refresh-task, keychain]
+tags: [platform, ios, unusernotificationcenter, bg-app-refresh-task, keychain, xcode, compose-mp]
 aliases: [iOS]
 created: 2026-04-24
 updated: 2026-07-08
@@ -48,7 +48,65 @@ Capabilities (Xcode):
 - **Status: exists** — `iosApp/iosApp.xcodeproj` is set up and wired to KMP.
 - Build phase: shell script runs `./gradlew :composeApp:embedAndSignAppleFrameworkForXcode`.
 - Framework search paths: `composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)`.
-- Entry point: `iosAppApp.swift` calls `KoinInitKt.initKoin()` and routes `onOpenURL` to `AuthCallbackHandlerKt.handleAuthCallback(url:)`.
+- Entry point: `iosAppApp.swift` calls `KoinInitKt.doInitKoin()` and routes `onOpenURL` to `AuthCallbackHandlerKt.handleAuthCallback(url:)`.
+  - ⚠️ **`init`-prefix mangling** — Kotlin/Native ObjC codegen prepends `do` to any function whose name starts with `init`. `initKoin()` → `doInitKoin()` in generated header. Using the un-mangled name causes "method not found" crash at launch.
+
+## Xcode build gotchas (resolved 2026-07-08)
+
+All issues below were hit when first building the app in Xcode after the KMP scaffold was complete.
+
+### 1. SQLite linker error
+- **Symptom**: undefined symbols `_sqlite3_bind_blob`, `_sqlite3_open`, etc. at link time.
+- **Cause**: `co.touchlab:sqliter-driver` bundles a SQLite C wrapper inside the static KMP framework. Static frameworks do not auto-propagate system library dependencies to the app target.
+- **Fix**: add `OTHER_LDFLAGS = "-lsqlite3"` to both Debug and Release target build configurations in `project.pbxproj`.
+
+### 2. `PBXFileSystemSynchronizedRootGroup` — "Multiple commands produce Info.plist"
+- **Symptom**: Xcode 26 build error "Multiple commands produce `.../iosApp.app/Info.plist`".
+- **Cause**: Xcode 26 uses `PBXFileSystemSynchronizedRootGroup` for new projects — it auto-syncs **all** files from a directory as both sources and resources. An `Info.plist` inside the synced folder is processed twice.
+- **Fix**: place `Info.plist` in `iosApp/iosApp/Configuration/` (outside the auto-synced group). Update build settings: `GENERATE_INFOPLIST_FILE = NO`, `INFOPLIST_FILE = Configuration/Info.plist`.
+
+### 3. Secrets injection — `ESI_CLIENT_ID` missing → "client_id parameter is required"
+- **Symptom**: EVE SSO returns `{"error":"invalid_request","error_description":"The client_id parameter is required."}`.
+- **Cause**: `EsiClientId.ios.kt` reads `NSBundle.mainBundle.objectForInfoDictionaryKey("ESIClientID")` but the key was absent from the auto-generated plist (which used `GENERATE_INFOPLIST_FILE = YES`).
+- **Fix** (three steps):
+  1. Create `iosApp/iosApp/Configuration/Secrets.xcconfig` (gitignored): `ESI_CLIENT_ID = <actual_id>`.
+  2. Set `baseConfigurationReference` on both target configs in `project.pbxproj` to point at `Secrets.xcconfig`.
+  3. In `Configuration/Info.plist` add `<key>ESIClientID</key><string>$(ESI_CLIENT_ID)</string>`. Xcode expands build-setting variables in Info.plist at build time (`INFOPLIST_EXPAND_BUILD_SETTINGS = YES` is the default).
+- See also: [[ADR-011 - Secrets via expect-actual and local.properties]].
+
+### 4. OAuth callback URL scheme — Safari "address is invalid"
+- **Symptom**: after EVE SSO login, Safari shows "address is invalid" instead of returning to the app.
+- **Cause**: custom URL scheme `eveauth-podforeve://` not registered; iOS cannot route it back to the app.
+- **Fix**: add `CFBundleURLTypes` to `Configuration/Info.plist`:
+  ```xml
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.podforeve.tracker.iosApp</string>
+      <key>CFBundleURLSchemes</key>
+      <array><string>eveauth-podforeve</string></array>
+    </dict>
+  </array>
+  ```
+
+### 5. Compose Multiplatform `PlistSanityCheck` crashes
+Compose 1.7.3 runs `PlistSanityCheck.performIfNeeded()` on a background GCD queue shortly after launch. It throws `kotlin.IllegalStateException` (uncaught → SIGABRT) on two distinct missing-plist-entry conditions.
+
+**Check A — `UISceneConfigurations` empty dict**
+- **Symptom**: SIGABRT on `com.apple.root.utility-qos` thread at launch.
+- **Cause**: auto-generated plist (from `INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES`) produces `UIApplicationSceneManifest` with an empty `UISceneConfigurations: {}`. Compose rejects this.
+- **Fix**: in the manual `Info.plist`, set `UIApplicationSceneManifest` to contain **only** `UIApplicationSupportsMultipleScenes = false`. Omit `UISceneConfigurations` entirely.
+
+**Check B — `CADisableMinimumFrameDurationOnPhone` missing**
+- **Symptom**: SIGABRT or exception shortly after launch (often triggered by first Compose render on high-refresh-rate simulator).
+- **Cause**: Compose 1.7.3 requires this key to ensure ProMotion displays don't get capped at 60 fps.
+- **Fix**: add to `Info.plist`:
+  ```xml
+  <key>CADisableMinimumFrameDurationOnPhone</key>
+  <true/>
+  ```
+- **Verification**: binary search of linked dylib (UTF-16 strings) shows exactly **two** `PlistSanityCheck` error strings in CMP 1.7.3 — these two. No other required keys exist in this version.
 
 ## Gotchas
 - **No live countdown** in lock screen / Dynamic Island. ActivityKit `Live Activities` would enable this — out of MVP scope (see [[ADR-007 - iOS Local Notifications]]).

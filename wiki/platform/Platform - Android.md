@@ -4,12 +4,16 @@ type: platform
 tags: [platform, android, foreground-service, alarm-manager, keystore, material3]
 aliases: [Android]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-06-30
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
 
 # Platform — Android
+
+## Targets
+- `minSdk`: **28** (Android 9.0) — see [[ADR-010 - Platform Targets]].
+- `targetSdk` / `compileSdk`: latest stable at build time (start 35).
 
 ## Capabilities used
 - **`ForegroundService`** for persistent training-countdown notification — see [[ADR-006 - Android Foreground Service]].
