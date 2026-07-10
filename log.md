@@ -309,6 +309,14 @@
 - `screen-skills-2026-07-09.png` — Coherent Ore Processing Lv4 hero bar; queue of 25 skills; Total 55d 5h 4m.
 - Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Dashboard]], [[Screen - Skills]] — Current UI sections filled.
 
+## [2026-07-09] dev | Error states — user-friendly messages, timeouts, auto-logout
+- **EsiErrorMapper** (`shared/commonMain`): maps exceptions to readable strings — auth (401/403), timeout, server error (5xx), network error, generic fallback.
+- **HttpTimeout plugin** added to both Android + iOS Ktor clients: 30s request / 15s connect.
+- **Auto-logout on token expiry**: `refreshTokens` lambda in both platform modules now calls `authRepo.logout()` when `getValidAccessToken()` returns null — triggers `AuthState.Unauthenticated` → App.kt routes to LoginScreen automatically.
+- **Shared `ErrorState` composable** (`composeApp/commonMain/ui/component/ErrorState.kt`): centered message + "Try again" OutlinedButton; replaces duplicate error composables in all 4 screens.
+- **Repositories updated**: `CharacterRepository`, `SkillQueueRepository`, `PlanetRepository`, `IndustryJobRepository` — now call `EsiErrorMapper.userMessage(e)` instead of raw exception message.
+- Commit: `f77fc46`. BUILD SUCCESSFUL (compileDebugKotlinAndroid + compileKotlinIosSimulatorArm64, 0 errors).
+
 ## [2026-07-09] meta | Wiki language set to English-only
 - All wiki content must now be written in English (user preference).
 - Added language rule to CLAUDE.md preamble.
