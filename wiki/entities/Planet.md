@@ -4,7 +4,7 @@ type: entity
 tags: [entity, domain, planet, pi-extractor, pi-factory, mvp]
 aliases: [Planetary Colony, PI Colony]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-13
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -38,6 +38,66 @@ Planet status is **derived, never stored**; recompute on every render.
 ## Lifecycle / state
 - Fetched on foreground refresh and pull-to-refresh per [[Stale-While-Revalidate Cache]].
 - No write operations in MVP — read-only observability.
+
+## PI Structure Type IDs
+
+Verified from live ESI colony data (2026-07-13). Each planet type has distinct type IDs for every structure.
+
+### Command Centers (empty; no role in storage logic)
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2524    |
+| Lava        | 2549    |
+| Storm       | 2550    |
+| Gas         | 2534    |
+| Temperate   | 2254    |
+
+### Extractors
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2848    |
+| Lava        | 3062    |
+| Storm       | 3067    |
+| Gas         | 3060    |
+| Temperate   | 3068    |
+
+### Basic Industry Facilities (BIF)
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2473    |
+| Lava        | 2469    |
+| Storm       | 2483    |
+| Gas         | 2492    |
+| Temperate   | 2481    |
+
+### Advanced Industry Facilities (AIF)
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2474    |
+| Lava        | 2470    |
+| Storm       | 2484    |
+
+### Storage Facilities (12,000 m³)
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2541    |
+| Lava        | 2558    |
+| Storm       | 2561    |
+| Gas         | 2536    |
+| Temperate   | 2562    |
+
+### Launchpads (10,000 m³)
+| Planet type | type_id |
+|-------------|---------|
+| Barren      | 2544    |
+| Lava        | 2555    |
+| Storm       | 2557    |
+| Gas         | 2543    |
+| Temperate   | 2256    |
+
+> Oceanic, Plasma, and Ice planet type IDs are TBD — no colonies on those planet types yet.
+
+Detected via `schematic_id` (present on all factory pins regardless of planet type). Type IDs for factories vary per planet type and are **not** used for factory detection in code.
 
 ## Related entities
 - [[Character]] — owner.

@@ -4,7 +4,7 @@ type: screen
 tags: [screen, dashboard, layer-ui, mvp]
 aliases: [Dashboard]
 created: 2026-04-24
-updated: 2026-07-09
+updated: 2026-07-13
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -61,7 +61,7 @@ See [[UiState]] and [[ADR-009 - UiState Sealed Class with Shimmer]].
 - **Settings**: `ModalBottomSheet` (M3 experimental) toggled by `showSettings: MutableState<Bool>` via `remember { mutableStateOf(false) }`. Contains a single `TextButton("Log out", color=error)` that calls `onLogout()`.
 - **Stats row**: 2-column `Row` with `StatCard` (ISK gold, SP neutral). SP shows "—" while `totalSp == 0L` (stale cache).
 - **Training card**: reuses `ActiveSkillProgressSection` component.
-- **Recent activity card**: shown only when `walletJournal.isNotEmpty()`. Up to 3 `WalletJournalRow`s with income/expense coloring (+green / neutral) and `relativeTime()` helper.
+- **Recent activity card**: shown only when `walletJournal.isNotEmpty()`. Up to 5 `WalletJournalRow`s (was 3). `JOURNAL_NOISE_TYPES` (`market_escrow`, `planetary_construction`) are filtered out in `observeWalletJournal` — mechanical bookkeeping noise (PI setup for 5 planets produces 45+ `planetary_construction` entries that bury real events like market sales). Row label uses `entry.description` (ESI human-readable text) when non-empty, falls back to `entry.displayName`. TextOverflow.Ellipsis on 1 line. Green for income, neutral for expenses.
 - **ViewModel** (`DashboardViewModel`): `combine(observeCharacter, observeSkillQueue, observeWalletJournal)` — 3-flow combine. `observeWalletJournal` emits `emptyList()` immediately so combine fires without blocking. `fun logout()` calls `screenModelScope.launch { authRepository.logout() }`.
 - **No DB migration**: `CharacterInfo` gained `securityStatus/corporationName/totalSp` with defaults (0.0/""/0L). Stale DB rows serve defaults; fresh ESI refresh populates all.
 - **ESI calls added** (no new scopes): `GET /v4/corporations/{id}/` (public), `GET /v4/characters/{id}/skills/`, `GET /v6/characters/{id}/wallet/journal/`.

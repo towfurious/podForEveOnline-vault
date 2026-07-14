@@ -30,6 +30,8 @@
 - [[ADR-010 - Platform Targets]] — Android minSdk 28, iOS deployment target 16.0.
 - [[ADR-011 - Secrets via expect-actual and local.properties]] — CLIENT_ID injected via BuildConfig (Android) and NSBundle/xcconfig (iOS); never committed.
 - [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]] — Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Gradle 9.4.1 + Ktor 3.x; AGP 9.0 KMP compat via bypass properties; migration to `com.android.kotlin.multiplatform.library` deferred.
+- [[ADR-013 - Faction Color Themes]] — 5 M3 dark color schemes (Minmatar/Amarr/Caldari/Gallente/AMOLED); `ThemeRepository` backed by `SecureStorage`; bottom-sheet theme switcher on Dashboard.
+- [[ADR-014 - Ktlint Detekt Linter Setup]] — Ktlint 1.3.1 (formatting) + Detekt 1.23.8 + `io.nlopez.compose.rules:detekt` 0.4.22 (static analysis); baselines committed; applied in root `subprojects {}`.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.

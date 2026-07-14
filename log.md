@@ -317,9 +317,107 @@
 - **Repositories updated**: `CharacterRepository`, `SkillQueueRepository`, `PlanetRepository`, `IndustryJobRepository` — now call `EsiErrorMapper.userMessage(e)` instead of raw exception message.
 - Commit: `f77fc46`. BUILD SUCCESSFUL (compileDebugKotlinAndroid + compileKotlinIosSimulatorArm64, 0 errors).
 
+## [2026-07-10] dev | Faction color themes + in-app theme switcher
+
+- **`AppTheme` enum** (5 entries): `EMBER` ("Minmatar"), `AMARR`, `CALDARI`, `GALLENTE`, `AMOLED`. `toColorScheme()` maps to M3 `darkColorScheme`; `previewColor` exposes the dot color for the picker.
+- **Color schemes**: Minmatar = existing ember red; Amarr = gold `#D4A820` + purple bg `#0A0608`; Caldari = ice blue `#4888E0` + dark navy `#06080E`; Gallente = emerald `#30B858` + near-black green `#060A07`; AMOLED = electric blue `#4090FF` + pure black `#000000`.
+- **`ThemeRepository`** (new, `composeApp/commonMain`): wraps `MutableStateFlow<AppTheme>` + `SecureStorage.THEME` key — persists selected theme across restarts. `KoinPlatform.getKoin().get()` used in Composables (no `koin-compose` dependency needed).
+- **`SecureStorage`**: `THEME = "app.theme"` key added to `SecureStorageKeys`.
+- **`AppModule`**: `single { ThemeRepository(get()) }` added to `uiModule`.
+- **`App.kt`**: `MaterialTheme(colorScheme = appTheme.toColorScheme())` replaces hardcoded `EmberColorScheme`.
+- **`DashboardScreen.kt`**: gear button opens single `ModalBottomSheet` with two-page content — menu page (`Appearance` row + `Log out` row) and Appearance page (back button `‹` + `ThemeRow` per theme with 28dp dot + "✓" checkmark). `showAppearance` boolean controls which page; swipe-down on Appearance page returns to menu.
+- Commits: `fe0de44`.
+
+## [2026-07-10] dev | Ktlint + Detekt + compose-rules linter setup
+
+- **Ktlint** (`org.jlleitschuh.gradle.ktlint` 12.1.2, formatter 1.3.1): formatting enforcer. Applied in root `subprojects {}`. Config: `.editorconfig` (`intellij_idea` style, 140 char limit, `ktlint_standard_function-naming = disabled` for Composables).
+- **Detekt** (`io.gitlab.arturbosch.detekt` 1.23.8): static analysis. `buildUponDefaultConfig = true`. Config: `config/detekt/detekt.yml` — `formatting` section removed (Ktlint owns formatting), Compose-friendly overrides (`LongMethod.threshold=80`, `LongParameterList.functionThreshold=8` + `ignoreAnnotated: ["Composable"]`, `MagicNumber.active=false`, `FunctionNaming.ignoreAnnotated: ["Composable"]`, `MaxLineLength: 140`).
+- **compose-rules** (`io.nlopez.compose.rules:detekt` 0.4.22): Compose-specific Detekt rules. Note: artifact group is `io.nlopez.compose.rules` (NOT `io.github.mrmans0n` — that group does not exist on Maven Central).
+- **Baselines**: `./gradlew detektBaseline` run once — `composeApp/detekt-baseline.xml` + `shared/detekt-baseline.xml` committed. Only new issues fail CI.
+- **Generated code exclusion**: `ktlint filter { exclude { entry -> entry.file.toString().contains("/build/generated/") } }` — SQLDelight and Compose resource generated files skipped.
+- **`ThemeRepository` rename**: backing property `_theme` → `_themeFlow` to satisfy `property-naming` rule (backing property must match the public property name).
+- **`shared/iosMain/KoinInit.kt` deleted**: was an empty placeholder (real init is in `composeApp/iosMain/KoinInit.kt`).
+- **`ktlintFormat` applied**: 45 files auto-reformatted (whitespace / trailing commas / import ordering). Zero logic changes.
+- Commits: `643941b` (linter config), `fd8a514` (auto-format).
+
 ## [2026-07-09] meta | Wiki language set to English-only
 - All wiki content must now be written in English (user preference).
 - Added language rule to CLAUDE.md preamble.
 - Updated §4.5 (UI versioning) from Russian to English.
 - Updated version tables in Current UI sections of all 4 screen pages.
 - Past Russian log entries translated to English retroactively (user request).
+
+## [2026-07-11] dev | PI compact card design + progress bar fixes
+- **Code — PiScreen.kt**: card padding 20/20dp → 14/12dp; planet name 22sp → 17sp; countdown 26sp → 20sp; divider padding 16/14 → 10/8dp; colony spacing 14dp → 8dp; factory icon 15dp → 13dp; factory dots 11dp/6dp-gap → 8dp/5dp-gap; storage icon/labels proportionally reduced; storage bar 6dp → 5dp; skeleton height 130dp → 110dp.
+- **Code — JobsScreen.kt**: status chip moved to top-right (next to activity name); runs count moved to bottom-right; bar height 6dp → 5dp.
+- **Code — SkillProgressBar.kt** (`GradientProgressBar`): track color `surfaceContainerHighest` → `onSurface.copy(alpha=0.15f)` (always visible over card backgrounds); hero bar (`ActiveSkillProgressSection`) 8dp → 6dp for consistency.
+- **Root cause of invisible progress bar track**: `surfaceContainerHighest` matched `surfaceContainerLow` (card background) in dark M3 — track was invisible. `onSurface.copy(alpha=0.15f)` semi-transparent white is always visible.
+- Wiki: [[Screen - PI]], [[Screen - Jobs]], [[Screen - Skills]] — implementation notes updated (pending).
+
+## [2026-07-11] dev | PI volume table + storage logic fixes
+- **Code — PiVolumeTable.kt**: P0 volume 0.01 → **0.005** m³/u (EVERef SDE verified); P1 0.1 → **0.19** m³/u; added type 2308 (Suspended Plasma) to P0 list (was missing → 20× overflow on Storm planet); added P1 types 3645, 3683; added P2 types 2463, 3828, 9838; fallback 0.1 → 0.0 (unknown excluded rather than guessed wrong).
+- **Code — PlanetRepository.kt**: `effectiveUsed = bufferUsed` → `effectiveUsed = if (dedicatedCapacity > 0) dedicatedUsed else bufferUsed`. Planets with Launchpad/SF now show those structures' fill (export readiness). Planets with only routing hubs show hub buffer fill.
+- **Root causes**: Storm (40132056) showed 100%/11k — type 2308 missing from P0 list caused 20× volume inflation. Barren Launchpad showed 25% — hub contents were counted against LP capacity. Gas buffer was 2× actual — P0 volume was 0.01 instead of 0.005.
+- Wiki: [[Planet]] — business rules updated (pending).
+
+## [2026-07-13] dev | Wallet journal — description field + filter + 5 entries
+- **Code — EsiWalletJournalEntryDto.kt**: added `description: String = ""` field.
+- **Code — WalletJournalEntry.kt**: added `description: String = ""`; improved `displayName` mapping: `market_transaction` now shows "Market sale" / "Market buy" based on sign; added `planetary_construction` → "PI construction", `transaction_tax` → "Sales tax", `air_career_program_reward` → "AIR reward".
+- **Code — CharacterRepository.kt**: `observeWalletJournal` now filters `market_escrow` entries (escrow releases = mechanical noise, not real transactions) and takes 5 instead of 3.
+- **Code — DashboardScreen.kt**: `WalletJournalRow` uses `entry.description.ifEmpty { entry.displayName }` as primary label; added `TextOverflow.Ellipsis` (maxLines=1).
+- **Trigger**: user's wallet journal export showed top-3 as all `planetary_construction` (PI colony build costs from Jul 11), hiding the 901M ISK market sale from Jul 10. Filtering escrow + 5 entries surfaces meaningful activity.
+- Wiki: [[WalletJournalEntry]] created; [[Screen - Dashboard]] implementation notes updated.
+
+## [2026-07-13] dev | Wallet journal — also filter planetary_construction
+- **Code — CharacterRepository.kt**: added `planetary_construction` to `JOURNAL_NOISE_TYPES`. A 5-planet EVE colony setup produces 45+ `planetary_construction` journal entries (structure build costs ~32.7M ISK total), which dominated Recent Activity even after the earlier `market_escrow` filter. The 901M ISK market sale on Jul 10 was still invisible.
+- **Filter logic**: `JOURNAL_NOISE_TYPES = setOf("market_escrow", "planetary_construction")`. Top 5 after filtering: market_transaction +901M, transaction_tax -45M, two air_career_program_reward, skill_purchase -1.3M.
+- Wiki: [[WalletJournalEntry]] business rules updated; [[Screen - Dashboard]] implementation notes updated.
+
+## [2026-07-13] dev | PI storage display — fix type IDs from ESI data
+- **Root cause**: `PiVolumeTable.launchpadTypeIds` was entirely wrong — included Barren CC (2524), Gas CC (2534), and fabricated IDs. `STORAGE_FACILITY_TYPE_ID = 2257` was also wrong; SFs have planet-type-specific IDs. Result: Barren showed "Launchpad 0%" (CC pin had no contents but was counted, doubling capacity denominator).
+- **Code — PiVolumeTable.kt**: replaced `launchpadTypeIds` with ESI-verified set {2544 Barren, 2555 Lava, 2557 Storm, 2543 Gas, 2256 Temperate}; added `storageFacilityTypeIds` {2541 Barren, 2558 Lava, 2561 Storm, 2536 Gas, 2562 Temperate} at 12,000 m³; removed wrong `STORAGE_FACILITY_TYPE_ID = 2257`; updated `capacityOf()` and `storageTypeIds`.
+- **Code — PlanetRepository.kt**: removed debug `println` statements; updated comment (2524 is CC, not LP).
+- **Wiki**: [[Planet]] entity page gained full type ID taxonomy table (CC, Extractor, BIF, AIF, SF, LP per planet type), all verified from live ESI colony responses.
+
+## [2026-07-13] dev | PI screen — pull-to-refresh
+- **Code — PlanetViewModel.kt**: added `_isRefreshing: MutableStateFlow<Boolean>`, exposed as `isRefreshing: StateFlow<Boolean>`; extracted `loadPlanets()` private function that attaches `.onCompletion { cause -> if (cause == null) _isRefreshing.value = false }` so the spinner clears after the ESI fetch finishes (handles both success and error-with-cache cases correctly); `refresh()` now sets `_isRefreshing.value = true` before bumping `refreshTrigger`.
+- **Code — PiScreen.kt**: added `PullToRefreshBox` wrapping `PiSuccess` content; `PiContent` and `PiSuccess` receive `isRefreshing: Boolean` + `onRefresh: () -> Unit`; file-level `@OptIn(ExperimentalMaterial3Api::class)` added.
+- **Behaviour**: PTR spinner appears on pull, stays while ESI fetch is in flight (SWR flow: stale cache emits first, spinner stays, fresh ESI data arrives → spinner stops). On ESI error with cache, spinner also stops (`onCompletion` fires either way when flow block ends normally).
+
+## [2026-07-13] dev | PI — split Storage Facility and Launchpad display
+- **Code — ColonySummary.kt**: replaced single `storageFillRatio/storageCapacityM3/storageUsedM3/storageLabel/hasPassiveStorage` with separate `sfCapacityM3/sfUsedM3` (Storage Facility, 12,000 m³ P0 buffer) and `lpCapacityM3/lpUsedM3` (Launchpad, 10,000 m³ finished goods). `sfFillRatio`/`lpFillRatio` computed as derived properties.
+- **Code — PlanetRepository.kt**: `toColonySummary()` simplified — removed allPassivePins/bufferUsed/effectiveCapacity fallback logic; now filters SF and LP pins by `PiVolumeTable.storageFacilityTypeIds` / `launchpadTypeIds` directly and sums their contents. Added import for `EsiColonyPinDto`.
+- **Code — PiScreen.kt**: `StorageRow(colony)` replaced with parameterised `StorageRow(label, fillRatio, usedM3, capacityM3)`; called twice per planet card when capacity > 0 — "Storage" row first, "Launchpad" row second. Previews updated with real Nakugard ESI values.
+- **Why separate**: SF fill signals P0 buffer state (extractors filling up → check routes); LP fill signals P2/P3 readiness for collection. Combined ratio was meaningless (7% of 22,000 m³).
+
+## [2026-07-13] dev | PI — SecureStorage crash fix + Planet.md type ID correction
+- **Bug**: `AEADBadTagException` crash on startup after app reinstall — Android Keystore invalidates the encryption key; `EncryptedSharedPreferences` fails to decrypt old keyset.
+- **Code — SecureStorage.android.kt**: wrapped `EncryptedSharedPreferences.create()` in try/catch; on exception, deletes stale `eve_secure_prefs` file via `context.deleteSharedPreferences()` and recreates. User must re-authenticate after reinstall.
+- **Wiki fix — [[Planet]]**: type 2481 was incorrectly classified as Temperate AIF. ESI data for planet 40132079 (Nakugard VI, Temperate) shows both type-2481 pins use schematics 131 and 134 (P0→P1 conversion = BIF behaviour). Moved 2481 to BIF table; Temperate AIF type ID now TBD (no AIF observed on Temperate colony yet).
+- **Confirmed from live ESI**: Storm CC=2550, Storm ECU=3067, Storm BIF=2483, Storm AIF=2484 (planet 40132056). Temperate CC=2254, Temperate ECU=3068, Temperate BIF=2481 (planet 40132079). Nakugard VI genuinely has 2 SF + 2 LP (P0→P1 production colony); 24,000/20,000 m³ capacity is correct in-game setup.
+
+## [2026-07-14] dev | PI data freshness + iOS warning fixes
+- **Code — ColonySummary.kt**: added `dataFetchedAtEpochSeconds: Long` field; added `dataAgeText(nowEpochSeconds: Long): String` → "just now" / "Xm ago" / "Xh ago".
+- **Code — PlanetRepository.kt**: captured `fetchedAt = Clock.System.now().epochSeconds` right after `esiApi.fetchColony()` returns; passed to `toColonySummary(fetchedAt)`.
+- **Code — PiScreen.kt**: added "data Xm ago" label (10 sp, 30 % alpha) per colony section via `colony.dataAgeText(now)`.
+- **Code — App.kt, DashboardScreen.kt, JobsScreen.kt, PiScreen.kt, SkillsScreen.kt**: `@Preview` import corrected from `org.jetbrains.compose.ui.tooling.preview.Preview` → `androidx.compose.ui.tooling.preview.Preview`.
+- **Code — shared/build.gradle.kts**: added `-Xexpect-actual-classes` to `freeCompilerArgs` to suppress beta warning for `expect`/`actual` class declarations.
+- **Code — SecureStorage.ios.kt**: added `@OptIn(kotlinx.cinterop.BetaInteropApi::class)` for `readBytes()` extension.
+- **Code — Crypto.ios.kt**: removed redundant `.toInt()` on `CC_SHA256_DIGEST_LENGTH`.
+- **Why freshness**: ESI colony endpoint caches ~10 min. User saw extractors showing 22 h remaining in app while EVE client showed 2 d 23 h — ESI was serving cached data. Label tells user when to force-refresh.
+- Wiki: [[Screen - PI]] implementation notes + current UI version table updated.
+
+## [2026-07-14] dev | PI screen — text legibility fix (font size + brightness)
+- **Bug**: PI screen text diverged from Dashboard/Jobs/Skills — those three always use `MaterialTheme.typography.*` tokens (floor: `labelSmall` 11sp) with `onSurfaceVariant` at full opacity. `PiScreen.kt` instead hardcoded raw `fontSize` down to 9–10sp and stacked extra `.copy(alpha = 0.3f–0.6f)` on top of the already-muted `onSurfaceVariant` — worst offender was the "data Xm ago" label at 10sp / 0.3 alpha, effectively invisible.
+- **Code — PiScreen.kt**: `ExtractorCountdown` "STOPS IN"/"EXTRACTORS" label 9sp→11sp, alpha 0.5→full. `FactoriesRow`/`StorageRow` labels ("Factories"/"Storage"/"Launchpad") gained `FontWeight.Medium`, alpha 0.6→full. Factory count, m³ text, "data Xm ago" alpha 0.4/0.3→full ("data Xm ago" also 10sp→11sp). Icon tints bumped 0.4→0.6 (kept muted deliberately — decorative, not information).
+- **User-facing trigger**: user reported PI tab text was "почти не читаем" (barely readable) compared to other tabs; confirmed via side-by-side comparison of exact fontSize/alpha values across all 4 screens.
+- Wiki: [[Screen - PI]] implementation notes + current UI version table updated with the new text-floor convention (11sp / full `onSurfaceVariant`, icons excepted).
+
+## [2026-07-14] lint | Ktlint + Detekt sweep after PI legibility fix
+- **Trigger**: user asked whether we check code after writing it — answer was no, ktlint/detekt hadn't been run since the crash-fix + freshness-label commit. Ran them; found real issues.
+- **Ktlint**: 39 formatting violations across `EsiColonyDto.kt`, `PlanetEsiApi.kt`, `CharacterRepository.kt`, `PlanetRepository.kt`, `PiVolumeTable.kt` (all touched earlier this session, never formatted). Fixed via `ktlintFormat`.
+- **Detekt — SecureStorage.android.kt**: `catch (e: Exception)` was `TooGenericExceptionCaught` + `SwallowedException`. Narrowed to `catch (e: GeneralSecurityException)` / `catch (e: IOException)` (the two types `EncryptedSharedPreferences.create()` actually declares); kept `@Suppress("SwallowedException")` on the property with the existing comment as justification — any crypto/IO failure on the stale keystore file should trigger the same wipe-and-recreate, so the swallow is intentional.
+- **Detekt — PiScreen.kt `StorageRow`**: `MultipleEmitters` (5 top-level composable siblings, no wrapping container) — wrapped the body in `Column { }`. No visual change (Column has no arrangement spec, same stacking as before).
+- **Detekt — PiScreen.kt `PiPreviewSuccess`**: `LongMethod` (82 vs 80 lines) after ktlintFormat expanded `Planet(...)` positional args one-per-line. Added `@Suppress("LongMethod")` — pure preview fixture data, consistent with existing baselined preview noise in this file.
+- Regenerated `composeApp/detekt-baseline.xml` (annotation change shifted the ID for the already-baselined `UnusedPrivateMember` on `PiPreviewSuccess`).
+- **Verified end-to-end**: `ktlintCheck` + `detekt` clean on both modules, `compileDebugKotlinAndroid` clean, then built and installed the debug APK on the connected device (`58090DLCQ009DN`) and screenshotted the live PI screen — confirmed "Factories", "Storage"/"Launchpad" labels, m³ values, and "data just now" are all legible against a different (non-Ember) active theme, confirming the fix operates correctly through the `onSurfaceVariant` token rather than a hardcoded color.
