@@ -32,6 +32,7 @@
 - [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]] — Kotlin 2.4.0 + CMP 1.11.1 + AGP 9.2.0 + Gradle 9.4.1 + Ktor 3.x; AGP 9.0 KMP compat via bypass properties; migration to `com.android.kotlin.multiplatform.library` deferred.
 - [[ADR-013 - Faction Color Themes]] — 5 M3 dark color schemes (Minmatar/Amarr/Caldari/Gallente/AMOLED); `ThemeRepository` backed by `SecureStorage`; bottom-sheet theme switcher on Dashboard.
 - [[ADR-014 - Ktlint Detekt Linter Setup]] — Ktlint 1.3.1 (formatting) + Detekt 1.23.8 + `io.nlopez.compose.rules:detekt` 0.4.22 (static analysis); baselines committed; applied in root `subprojects {}`.
+- [[ADR-015 - Unified Completion Notifications]] — shared `NotificationScheduler` covering skill queue, industry jobs, PI extractors; Android skill queue gets a live-countdown ForegroundService (`specialUse` type + `SCHEDULE_EXACT_ALARM`), job/extractor get plain one-shot alarms; iOS uses one-shot `UNNotificationRequest` for all three.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.
@@ -60,12 +61,16 @@
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]] — design spec, approved 2026-04-24.
 
-## Open threads
+- [[ADR-015 - Unified Completion Notifications]] follow-ups, explicitly deferred: `BGAppRefreshTask`/`WorkManager` background rescheduling, `BOOT_COMPLETED` alarm re-arming, tap-to-deep-link, in-app per-category settings toggle.
+- [[ADR-015 - Unified Completion Notifications]] — iOS device/simulator behavior not yet confirmed on-device (only Android was verified, 2026-07-15).
 - Per-endpoint ESI pages (list grows during data-layer plan; two added so far).
 - iOS CI secret injection — `Secrets.xcconfig` with `ESI_CLIENT_ID` must be provided in CI; not yet documented as a runbook.
 - Android CI secret injection — `local.properties` with `esi.client_id` must be provided in CI; not yet set up.
 - AGP 9.0 KMP migration — `com.android.library` + `org.jetbrains.kotlin.multiplatform` deprecated; must migrate to `com.android.kotlin.multiplatform.library` before AGP 10.0. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].
 - `@Preview` CMP 1.11 migration — `org.jetbrains.compose.ui.tooling.preview.Preview` deprecated; migrate to `androidx.compose.ui.tooling.preview.Preview` from `org.jetbrains.compose.ui:ui-tooling-preview`.
+
+### Resolved (2026-07-15) — Notification device verification
+- ~~[[ADR-015 - Unified Completion Notifications]] — device-verified pending~~ — verified end-to-end on Android hardware (real login, all 3 sources: skill live-countdown, PI extractor, industry job). Found and fixed 3 real bugs in the process: wrong head-of-queue selection (bare `queuePosition == 0` instead of filtering finished entries — see [[Skill Queue]]), duplicate/orphaned skill notification (mismatched notification keys across `startForeground()`/tick/backup-alarm posts), and a channel-not-created crash reachable via an abnormal Service-start path. See `log.md` 2026-07-15 for the full trace.
 
 ### Resolved (2026-07-09) — All MVP screens implemented
 - ~~[[Screen - Dashboard]] — implementation notes empty; stub only~~ — implemented: 76dp portrait, corp name, security badge, gear+logout sheet, 2-col stats (ISK+SP), training card, recent activity card.

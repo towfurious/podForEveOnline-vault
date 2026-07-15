@@ -51,3 +51,4 @@ Service type in manifest: `android:foregroundServiceType="dataSync"` (the most a
 - [[ADR-005 - Math-Based Skill Progress]]
 - [[Platform - Android]]
 - [[Skill Queue]]
+- [[ADR-015 - Unified Completion Notifications]] — implements this design (2026-07-14), with two corrections: `foregroundServiceType="specialUse"` (not `"dataSync"`, which caps at 6h/24h on Android 15) and `SCHEDULE_EXACT_ALARM` (not `USE_EXACT_ALARM`, a Play-policy risk for a non-alarm-app). Also extends the same mechanism to industry jobs and PI extractors.

@@ -4,7 +4,7 @@ type: entity
 tags: [entity, domain, industry-job, blueprint, mvp]
 aliases: [Industry, Manufacturing Job, Research Job]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-14
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -52,10 +52,12 @@ Blueprint names and station/structure names resolve through separate ESI calls (
 ## Lifecycle / state
 - Fetched on foreground refresh per [[Stale-While-Revalidate Cache]].
 - `status` transitions from `active` → `delivered` once `end_date` is passed; we filter to active jobs only in MVP.
+- On `end_date` reached, a one-shot completion notification fires for each active job (Android `AlarmManager`; iOS `UNNotificationRequest`) — see [[ADR-015 - Unified Completion Notifications]].
 
 ## Related entities
 - [[Character]] — owner.
 - [[Screen - Jobs]] — consumer.
+- [[ADR-015 - Unified Completion Notifications]] — completion notification behavior.
 
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]]

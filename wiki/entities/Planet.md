@@ -4,7 +4,7 @@ type: entity
 tags: [entity, domain, planet, pi-extractor, pi-factory, mvp]
 aliases: [Planetary Colony, PI Colony]
 created: 2026-04-24
-updated: 2026-07-13
+updated: 2026-07-14
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -38,6 +38,7 @@ Planet status is **derived, never stored**; recompute on every render.
 ## Lifecycle / state
 - Fetched on foreground refresh and pull-to-refresh per [[Stale-While-Revalidate Cache]].
 - No write operations in MVP — read-only observability.
+- On extractor depletion (`extractorExpiryEpochSeconds` reached — the earliest expiry across a planet's extractor pins), a one-shot notification fires per planet (Android `AlarmManager`; iOS `UNNotificationRequest`). Scheduled directly from the in-memory colony snapshot at fetch time — this value is never persisted to SQLDelight. See [[ADR-015 - Unified Completion Notifications]].
 
 ## PI Structure Type IDs
 
@@ -102,6 +103,7 @@ Detected via `schematic_id` (present on all factory pins regardless of planet ty
 ## Related entities
 - [[Character]] — owner.
 - [[Screen - PI]] — consumer.
+- [[ADR-015 - Unified Completion Notifications]] — extractor-depletion notification behavior.
 
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]]

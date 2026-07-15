@@ -46,3 +46,4 @@ iOS has **no analog of Android's ForegroundService**. Third-party apps cannot ru
 - [[ADR-006 - Android Foreground Service]] — platform counterpart.
 - [[Platform - iOS]]
 - [[Skill Queue]]
+- [[ADR-015 - Unified Completion Notifications]] — implements this design (2026-07-14) using `UNTimeIntervalNotificationTrigger`, and extends the same mechanism to industry jobs and PI extractors (all one-shot, same as skill queue here — iOS still has no live-countdown path).
