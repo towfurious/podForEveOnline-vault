@@ -4,7 +4,7 @@ type: decision
 tags: [adr, architecture, ktor, sqldelight, koin, coil3, layer-data]
 aliases: []
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-15
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 adr-status: Accepted
@@ -30,6 +30,7 @@ The shared layer needs: an HTTP client for ESI, a local store for the [[Stale-Wh
 - Ktor's plugin architecture cleanly handles auth token refresh and retry.
 - SQLDelight's type-safe queries prevent runtime SQL-shape errors.
 - Koin avoids annotation processors — fast incremental builds.
+- **Convention (added 2026-07-15)**: platform `actual` classes that need an Android `Context` (`SecureStorage`, `DatabaseDriverFactory`, `NotificationScheduler`) take it as a constructor parameter, wired through `androidContext()` (registered once in `PodForEveApplication.onCreate()`'s `startKoin{}`) via `single { Xxx(get()) }`. An earlier `AppContext` global object (`lateinit var instance: Context`) predated this and was removed — it duplicated what Koin's container already provided and tripped Android Lint's `StaticFieldLeak` check. `expect class` declarations with no explicit constructor impose no shape constraint on `actual`s, so each platform is free to choose its own constructor — this only needed to change on the Android side.
 
 **Negative**
 - Ktor error handling is lower-level than Retrofit — we write our own mapping into domain errors.
