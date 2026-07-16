@@ -4,7 +4,7 @@ type: platform
 tags: [platform, ios, unusernotificationcenter, bg-app-refresh-task, keychain, xcode, compose-mp]
 aliases: [iOS]
 created: 2026-04-24
-updated: 2026-07-08
+updated: 2026-07-15
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -24,7 +24,7 @@ status: active
 
 ## Permissions / entitlements
 `Info.plist`:
-- `CFBundleURLTypes` with the `eve-tracker` scheme for OAuth callback.
+- `CFBundleURLTypes` with the `eveauth-podforeve` scheme for OAuth callback (corrected 2026-07-15 — see gotcha #4 below and [[ADR-008 - OAuth2 PKCE via System Browser]] addendum; this line previously said `eve-tracker`, which was never the shipped value).
 - `BGTaskSchedulerPermittedIdentifiers` listing our background task identifier (e.g. `eve.tracker.queue.refresh`).
 - `NSUserNotificationUsageDescription` — request runtime permission on first login.
 

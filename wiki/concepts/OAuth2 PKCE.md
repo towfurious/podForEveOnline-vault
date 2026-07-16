@@ -4,7 +4,7 @@ type: concept
 tags: [concept, auth, oauth2, pkce, sso, esi-scopes]
 aliases: [PKCE, Proof Key for Code Exchange]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-15
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -25,11 +25,11 @@ EVE SSO is used as a public OAuth2 provider. The app is a mobile/desktop client 
 3. App opens EVE login URL in the **system browser** (not an in-app WebView) with params:
    - `response_type=code`
    - `client_id=<our eve app id>`
-   - `redirect_uri=eve-tracker://callback`
+   - `redirect_uri=eveauth-podforeve://callback` (corrected 2026-07-15 — see [[ADR-008 - OAuth2 PKCE via System Browser]] addendum)
    - `scope=<space-joined scopes from ESI Scopes MVP>`
    - `state=<csrf-random>`
    - `code_challenge=<…>`, `code_challenge_method=S256`
-4. EVE redirects back to `eve-tracker://callback?code=…&state=…`. App validates `state`.
+4. EVE redirects back to `eveauth-podforeve://callback?code=…&state=…`. App validates `state`.
 5. App POSTs to EVE token endpoint with `grant_type=authorization_code`, `code`, `code_verifier` (plus client_id). No client secret.
 6. Response: `access_token` (JWT, TTL ≈ 20 min), `refresh_token` (long-lived). Access token stays **in memory only**; refresh token goes to [[SecureStorage]].
 7. On access-token expiry → refresh flow using the stored refresh token.

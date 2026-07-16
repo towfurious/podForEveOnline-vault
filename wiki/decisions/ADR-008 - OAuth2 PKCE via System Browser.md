@@ -15,6 +15,8 @@ adr-status: Accepted
 ## Status
 Accepted 2026-04-24.
 
+> **Addendum (2026-07-15)**: the redirect URI documented below was corrected during initial Android/iOS setup — the actual registered and shipped scheme is `eveauth-podforeve://callback`, not `eve-tracker://callback` (the EVE Developer Portal requires an `eveauth`-prefixed custom scheme). This page's original body is left as accepted (ADRs are append-only); [[Platform - Android]], [[Platform - iOS]], and [[OAuth2 PKCE]] have been corrected to the shipped value. The `[[Guide - Registering eve-tracker URI]]` mentioned under Consequences below was never written — see [[Guide - App Store Launch Readiness]] for current open documentation gaps.
+
 ## Context
 The app authenticates against EVE SSO as a public mobile client. It cannot hold a client secret, must survive token interception, and should not reinvent the security wheel. OAuth 2.0 for Native Apps (RFC 8252) mandates the system browser; EVE SSO supports PKCE.
 

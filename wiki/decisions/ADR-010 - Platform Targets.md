@@ -4,7 +4,7 @@ type: decision
 tags: [adr, android, ios, platform]
 aliases: []
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-15
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 adr-status: Accepted
@@ -21,6 +21,7 @@ The design spec did not specify a minimum Android API level or iOS deployment ta
 ## Decision
 - **Android `minSdk`: 28** (Android 9.0 Pie, 2018). Cleartext traffic off by default, `EncryptedSharedPreferences` stable, `FOREGROUND_SERVICE` permission semantics well-established.
 - **Android `targetSdk`**: latest stable at build time (start at 35, bump annually).
+  > **Addendum (2026-07-15)**: this policy is now time-sensitive — Google Play requires new app submissions and updates to target API 36 (Android 16) by **August 31, 2026**. The app is still on 35 (`gradle/libs.versions.toml`). See [[Guide - App Store Launch Readiness]] (P0) for the bump-and-verify task.
 - **Android `compileSdk`**: same as `targetSdk`.
 - **iOS deployment target: 16.0**. Covers `UNUserNotificationCenter`, `ASWebAuthenticationSession`, and satisfies Compose Multiplatform 1.7+ stable iOS tier requirement.
 

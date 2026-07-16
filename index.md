@@ -57,16 +57,15 @@
 
 ## Guides
 - [[Guide - Foundation Setup]] — KMP project scaffold: modules, Gradle config, SQLDelight schema v1, iOS entry stubs.
+- [[Guide - App Store Launch Readiness]] — master P0/P1/P2 tracker for everything needed before a real Play Store / App Store launch: release signing, CCP disclaimer, privacy policy, crash reporting, ESI etiquette compliance, CI/CD, and more.
 
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]] — design spec, approved 2026-04-24.
 
-- [[ADR-015 - Unified Completion Notifications]] follow-ups, explicitly deferred: `BGAppRefreshTask`/`WorkManager` background rescheduling, `BOOT_COMPLETED` alarm re-arming, tap-to-deep-link, in-app per-category settings toggle.
+## Open threads
+- [[Guide - App Store Launch Readiness]] — master tracker for everything still needed before a real store launch: release signing, CCP disclaimer, privacy policy, crash reporting, ESI etiquette compliance, CI/CD, and more. Folds in and supersedes the CI-secret-injection and AGP-9-migration bullets that used to live here standalone, plus [[ADR-015 - Unified Completion Notifications]]'s "explicitly deferred" follow-ups.
 - [[ADR-015 - Unified Completion Notifications]] — iOS device/simulator behavior not yet confirmed on-device (only Android was verified, 2026-07-15).
 - Per-endpoint ESI pages (list grows during data-layer plan; two added so far).
-- iOS CI secret injection — `Secrets.xcconfig` with `ESI_CLIENT_ID` must be provided in CI; not yet documented as a runbook.
-- Android CI secret injection — `local.properties` with `esi.client_id` must be provided in CI; not yet set up.
-- AGP 9.0 KMP migration — `com.android.library` + `org.jetbrains.kotlin.multiplatform` deprecated; must migrate to `com.android.kotlin.multiplatform.library` before AGP 10.0. See [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]].
 - `@Preview` CMP 1.11 migration — `org.jetbrains.compose.ui.tooling.preview.Preview` deprecated; migrate to `androidx.compose.ui.tooling.preview.Preview` from `org.jetbrains.compose.ui:ui-tooling-preview`.
 
 ### Resolved (2026-07-15) — Notification device verification

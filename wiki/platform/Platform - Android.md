@@ -4,7 +4,7 @@ type: platform
 tags: [platform, android, foreground-service, alarm-manager, keystore, material3]
 aliases: [Android]
 created: 2026-04-24
-updated: 2026-06-30
+updated: 2026-07-15
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -31,7 +31,7 @@ status: active
 - `SCHEDULE_EXACT_ALARM` (or `USE_EXACT_ALARM`) — for the `AlarmManager` completion fire on API 31+ / 33+ respectively. Prefer `USE_EXACT_ALARM` (granted to calendar/alarm-like apps without a user grant).
 
 Also:
-- Intent filter for `eve-tracker://callback` on the OAuth entry activity.
+- Intent filter for `eveauth-podforeve://callback` on the OAuth entry activity (corrected 2026-07-15 — the EVE Developer Portal requires an `eveauth`-prefixed scheme; see [[ADR-008 - OAuth2 PKCE via System Browser]] addendum).
 - `<service android:foregroundServiceType="dataSync" ... />` for the training service.
 
 ## Lifecycle details
