@@ -470,3 +470,13 @@
 - [[ADR-010 - Platform Targets]] gained an addendum flagging the Aug 31 2026 targetSdk-36 deadline against its existing "bump annually" policy.
 - No app code changed in this pass — everything above is vault documentation. Implementation of roadmap items happens turn-by-turn, tracked via the new guide's Status column.
 - Wiki: [[Guide - App Store Launch Readiness]] created; [[ADR-013 - Faction Color Themes]], [[ADR-014 - Ktlint Detekt Linter Setup]] recovered; [[ADR-008 - OAuth2 PKCE via System Browser]], [[ADR-010 - Platform Targets]], [[Platform - Android]], [[Platform - iOS]], [[OAuth2 PKCE]] updated; `index.md` Guides section + Open threads updated.
+
+## [2026-07-16] dev | GitHub Actions CI — lint, static analysis, tests, debug build
+- **Trigger**: user asked to set up CI on GitHub Actions — build, tests, lint all considered essential before release/publishing.
+- **New**: `podForEveOnline/.github/workflows/ci.yml`, two jobs, both triggered on push/PR to `master` plus manual `workflow_dispatch`:
+  - `lint-and-android` (ubuntu-latest): `ktlintCheck detekt shared:lintDebug composeApp:lintDebug androidApp:lintDebug shared:testDebugUnitTest androidApp:assembleDebug` — uploads the debug APK as a build artifact on success, uploads lint/test reports on failure.
+  - `ios-test` (macos-latest, needed for the Kotlin/Native Xcode toolchain): `shared:iosSimulatorArm64Test`.
+- **No secrets required**: confirmed by reading the actual Gradle wiring — `shared/build.gradle.kts:64` defaults `ESI_CLIENT_ID` to `""` when `local.properties` is absent (`.takeIf { it.exists() }`), and iOS's `EsiClientId.ios.kt` reads from the *app's* `Info.plist` at Xcode-build time, which `shared`'s Kotlin/Native compilation never touches. Both only affect real SSO login at runtime, not compilation or unit tests. This corrects [[ADR-011 - Secrets via expect-actual and local.properties]]'s original (broader-than-necessary) Consequences claim that CI needs secret injection — addendum added there.
+- **Verified before committing**: ran the exact command sequence from both jobs locally (`BUILD SUCCESSFUL` for both), and confirmed the debug-APK output path (`androidApp/build/outputs/apk/debug/*.apk`) matches the artifact-upload step.
+- **Still open**: a signed release-build job is a deliberate follow-up, gated on [[Guide - App Store Launch Readiness]]'s P0 keystore item — that's the point secrets actually become necessary in CI.
+- Wiki: [[Guide - App Store Launch Readiness]] P1 #7 marked done with details; [[ADR-011 - Secrets via expect-actual and local.properties]] addendum correcting the CI-secrets Consequences claim.

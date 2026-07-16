@@ -4,7 +4,7 @@ type: decision
 tags: [adr, auth, security, kmp, expect-actual, android, ios]
 aliases: [ADR-011]
 created: 2026-07-08
-updated: 2026-07-08
+updated: 2026-07-16
 sources: []
 status: active
 ---
@@ -13,6 +13,8 @@ status: active
 
 ## Status
 Accepted 2026-07-08
+
+> **Addendum (2026-07-16)**: the Consequences bullets below ("Android CI needs `local.properties` injected...", "iOS CI needs `Secrets.xcconfig` injected...") turned out broader than necessary. Both `esiClientId()` actuals degrade gracefully to `""` when their source file is absent (`shared/build.gradle.kts:64`'s `.takeIf { it.exists() }`; `EsiClientId.ios.kt` reads from the app's own `Info.plist` at *app* runtime, which the `shared` module's Kotlin/Native compilation never touches) — this only breaks real SSO login, not compilation or unit tests. The CI workflow added in [[Guide - App Store Launch Readiness]] (lint/detekt/Android Lint/unit tests/`assembleDebug` + iOS K/N tests) needs **no secrets at all**. Secret injection is still real, just narrower in scope than originally stated: only a *signed release build* job (once the [[Guide - App Store Launch Readiness]] P0 keystore item exists) would need `local.properties`/`Secrets.xcconfig`-equivalent values in GitHub Actions secrets, and only if that job needs a working SSO login rather than just a signed artifact.
 
 ## Context
 `EsiConfig.CLIENT_ID` was hardcoded as a string literal and committed to git. EVE SSO `client_id` is technically public (appears in every OAuth URL), but committing it is bad practice even for private repos — it prevents rotation, complicates open-sourcing, and violates hygiene rules. Needed a KMP-safe injection mechanism that works on both Android and iOS without a shared secret file.
