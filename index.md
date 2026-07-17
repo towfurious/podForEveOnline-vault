@@ -33,6 +33,7 @@
 - [[ADR-013 - Faction Color Themes]] — 5 M3 dark color schemes (Minmatar/Amarr/Caldari/Gallente/AMOLED); `ThemeRepository` backed by `SecureStorage`; bottom-sheet theme switcher on Dashboard.
 - [[ADR-014 - Ktlint Detekt Linter Setup]] — Ktlint 1.3.1 (formatting) + Detekt 1.23.8 + `io.nlopez.compose.rules:detekt` 0.4.22 (static analysis); baselines committed; applied in root `subprojects {}`.
 - [[ADR-015 - Unified Completion Notifications]] — shared `NotificationScheduler` covering skill queue, industry jobs, PI extractors; Android skill queue gets a live-countdown ForegroundService (`specialUse` type + `SCHEDULE_EXACT_ALARM`), job/extractor get plain one-shot alarms; iOS uses one-shot `UNNotificationRequest` for all three.
+- [[ADR-016 - AGP KMP Library Plugin Migration]] — `shared`/`composeApp` migrated `com.android.library` → `com.android.kotlin.multiplatform.library`; `androidApp` dropped the redundant standalone Kotlin plugin for AGP's built-in support; ESI_CLIENT_ID secret injection moved from `BuildConfig` (unsupported by the new plugin) to a custom Gradle task.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.

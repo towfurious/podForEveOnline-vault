@@ -4,7 +4,7 @@ type: decision
 tags: [adr, kmp, kotlin, compose-mp, android, agp]
 aliases: []
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-17
 sources: []
 status: active
 ---
@@ -13,6 +13,8 @@ status: active
 
 ## Status
 Accepted 2026-07-09
+
+> **Addendum (2026-07-17)**: the deferred migration below landed — see [[ADR-016 - AGP KMP Library Plugin Migration]]. The `libraryVariants`/Voyager risk flagged in this ADR's Consequences was tested first, empirically, before anything else; it did not reproduce under `com.android.kotlin.multiplatform.library` + `android.newDsl=true`. `android.builtInKotlin`/`android.newDsl` are `true` again as of that migration.
 
 ## Context
 
