@@ -60,6 +60,7 @@
 ## Guides
 - [[Guide - Foundation Setup]] — KMP project scaffold: modules, Gradle config, SQLDelight schema v1, iOS entry stubs.
 - [[Guide - App Store Launch Readiness]] — master P0/P1/P2 tracker for everything needed before a real Play Store / App Store launch: release signing, CCP disclaimer, privacy policy, crash reporting, ESI etiquette compliance, CI/CD, and more.
+- [[Guide - Compose Multiplatform Maturity Findings]] — living synthesis of what's rough vs. solid in CMP/KMP today, pulled from ADR-012/ADR-016/ADR-017 and the log — the project's actual point is evaluating this firsthand, not just shipping.
 
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]] — design spec, approved 2026-04-24.

@@ -58,5 +58,6 @@ Sequenced deliberately with the highest-risk unknown first, not left to the end:
 - [[ADR-011 - Secrets via expect-actual and local.properties]] — the secret-injection convention this migration had to preserve.
 - [[ADR-012 - Stack Upgrade Kotlin 2.4 CMP 1.11 AGP 9]] — where this migration was originally deferred, and where the Voyager risk was first documented.
 - [[Guide - App Store Launch Readiness]] — P1 #7 (CI) references this migration's task-naming changes.
+- [[Guide - Compose Multiplatform Maturity Findings]] — this migration's rough edges (undocumented task names, non-compiling official-doc sample, the pre-flagged Voyager risk) are cited there as a build-tooling maturity finding.
 - https://developer.android.com/kotlin/multiplatform/plugin
 - https://kotlinlang.org/docs/multiplatform/multiplatform-project-agp-9-migration.html

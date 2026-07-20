@@ -66,3 +66,4 @@ Upgrade to:
 
 - https://kotl.in/gradle/agp-new-kmp
 - CMP 1.11 release notes (removed `iosX64`; deprecated `compose.components.uiToolingPreview`)
+- [[Guide - Compose Multiplatform Maturity Findings]] — this ADR's version-lockstep chain and the pre-flagged Voyager/`libraryVariants` risk are cited there as maturity findings.
