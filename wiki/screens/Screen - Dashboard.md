@@ -4,7 +4,7 @@ type: screen
 tags: [screen, dashboard, layer-ui, mvp]
 aliases: [Dashboard]
 created: 2026-04-24
-updated: 2026-07-13
+updated: 2026-07-19
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -47,10 +47,11 @@ See [[UiState]] and [[ADR-009 - UiState Sealed Class with Shimmer]].
 
 ## Current UI
 
-![[screen-dashboard-2026-07-09.png]]
+![[screen-dashboard-2026-07-19.png]]
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2 | 2026-07-19 | "Plasma conduit" neon-outline treatment ([[ADR-017 - Neon Outline Card and Icon Treatment]]): cards → `GlowCard` (glowing bordered panel replacing plain M3 `Card`), glow ring behind the portrait, glow `Shadow` on the ISK balance number, `EveIcons` re-rendered as open strokes instead of fills |
 | v1 | 2026-07-09 | Initial implementation: 76dp portrait, corp name, security badge (gold +0.7), gear icon, ISK Balance + Skill Points stat cards, training card with progress bar, recent activity (Skill purchase / Market Escrow) |
 
 ## Implementation notes
@@ -65,7 +66,9 @@ See [[UiState]] and [[ADR-009 - UiState Sealed Class with Shimmer]].
 - **ViewModel** (`DashboardViewModel`): `combine(observeCharacter, observeSkillQueue, observeWalletJournal)` — 3-flow combine. `observeWalletJournal` emits `emptyList()` immediately so combine fires without blocking. `fun logout()` calls `screenModelScope.launch { authRepository.logout() }`.
 - **No DB migration**: `CharacterInfo` gained `securityStatus/corporationName/totalSp` with defaults (0.0/""/0L). Stale DB rows serve defaults; fresh ESI refresh populates all.
 - **ESI calls added** (no new scopes): `GET /v4/corporations/{id}/` (public), `GET /v4/characters/{id}/skills/`, `GET /v6/characters/{id}/wallet/journal/`.
-- `EveIcons.Settings` added — Material Design gear path (24×24 viewport, EvenOdd fill for centre hole).
+- `EveIcons.Settings` added — Material Design gear path (24×24 viewport). Originally an EvenOdd fill for the centre hole; re-rendered as an open stroke as of [[ADR-017 - Neon Outline Card and Icon Treatment]] (2026-07-19) — the tooth outline and the hole simply become their own closed stroke loops.
+- Cards (`StatCard`, Training, Recent Activity) use `GlowCard` (`ui/component/GlowCard.kt`) instead of plain M3 `Card` as of 2026-07-19 — see [[ADR-017 - Neon Outline Card and Icon Treatment]].
+- `WalletJournalRow` takes an explicit `gainColor: Color` param (resolved from `currentTheme.gainColor` in `DashboardSuccess`) instead of a hardcoded green literal — needed because Gallente's own primary is emerald and would otherwise collide with a fixed gain-green.
 - BUILD SUCCESSFUL (compileDebugKotlinAndroid, 0 errors, only pre-existing @Preview warnings).
 
 ## Related

@@ -43,3 +43,11 @@ Accepted 2026-07-10.
 ## References
 - [[ADR-002 - Material 3 Dark Default]]
 - [[Guide - App Store Launch Readiness]]
+
+## Addendum (2026-07-19)
+[[ADR-017 - Neon Outline Card and Icon Treatment]] builds a card/icon glow treatment entirely on top of the color schemes defined here — specifically discovered that every scheme's `onPrimaryContainer` already works as the "glow" accent color, so no new tokens were needed. Also added `AppTheme.gainColor`, a small extension in the same file, for wallet-gain/job-complete green (amber on Gallente specifically, to avoid colliding with that scheme's own emerald primary).
+
+## Addendum (2026-07-19) — the `KoinPlatform.getKoin().get()` pattern crashes under `@Preview`
+This ADR's own "Read via `KoinPlatform.getKoin().get()` directly in Composables — no `koin-compose` dependency was added just for this" decision has a real gap: Android Studio's `@Preview` renderer never runs the app's actual startup code (no `startKoin{}`), so any composable that reaches a bare `getKoin().get()` throws `IllegalStateException: KoinApplication has not been started` the moment Android Studio tries to render it — for `DashboardSuccess` specifically, since day one of this pattern (2026-07-10, confirmed via `git blame`), not something introduced later. Only surfaced now because a second call site (`JobsSuccess`, added while wiring [[ADR-017 - Neon Outline Card and Icon Treatment]]'s `gainColor`) hit the same crash and the user caught it directly from an IDE stack trace.
+
+Fix: `ThemeRepository.kt` gained `@Composable fun rememberThemeRepositoryOrNull(): ThemeRepository?` — returns `null` under `LocalInspectionMode.current` (true only inside the Preview sandbox), the real repo everywhere else. Callers that only *read* the current theme fall back to a local `MutableStateFlow(AppTheme.EMBER)`; `DashboardSuccess`'s theme-switcher *write* (`themeRepo?.current = theme`) becomes a no-op under Preview, which is correct — nothing user-facing to persist in a static IDE render anyway. Any future composable added in this codebase that needs `ThemeRepository` should go through this helper, not a bare `getKoin().get()`.

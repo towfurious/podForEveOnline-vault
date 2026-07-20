@@ -34,6 +34,7 @@
 - [[ADR-014 - Ktlint Detekt Linter Setup]] — Ktlint 1.3.1 (formatting) + Detekt 1.23.8 + `io.nlopez.compose.rules:detekt` 0.4.22 (static analysis); baselines committed; applied in root `subprojects {}`.
 - [[ADR-015 - Unified Completion Notifications]] — shared `NotificationScheduler` covering skill queue, industry jobs, PI extractors; Android skill queue gets a live-countdown ForegroundService (`specialUse` type + `SCHEDULE_EXACT_ALARM`), job/extractor get plain one-shot alarms; iOS uses one-shot `UNNotificationRequest` for all three.
 - [[ADR-016 - AGP KMP Library Plugin Migration]] — `shared`/`composeApp` migrated `com.android.library` → `com.android.kotlin.multiplatform.library`; `androidApp` dropped the redundant standalone Kotlin plugin for AGP's built-in support; ESI_CLIENT_ID secret injection moved from `BuildConfig` (unsupported by the new plugin) to a custom Gradle task.
+- [[ADR-017 - Neon Outline Card and Icon Treatment]] — "plasma conduit" sci-fi glow treatment (from an Artifact mockup) implemented for real: new `GlowCard` component, `EveIcons` re-rendered as open strokes on their existing path data, `AppTheme.gainColor` extension (amber on Gallente). No new `Theme.kt` tokens — reuses `onPrimaryContainer` as the glow color across all 5 schemes.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.

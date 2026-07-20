@@ -4,7 +4,7 @@ type: screen
 tags: [screen, pi, planet, pi-extractor, pi-factory, layer-ui, mvp]
 aliases: [PI, Planetary Interaction, Planets]
 created: 2026-04-24
-updated: 2026-07-14
+updated: 2026-07-19
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -42,17 +42,18 @@ See [[UiState]].
 
 ## Current UI
 
-> _Screenshot pending — save the file to `attachments/` and replace this line with `![[screen-pi-2026-07-14.png]]`._
+![[screen-pi-2026-07-19.png]]
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v4 | 2026-07-19 | "Plasma conduit" neon-outline treatment ([[ADR-017 - Neon Outline Card and Icon Treatment]]): `PlanetCard` → `GlowCard`. `PlanetTypeChip`/`StatusChip` colors deliberately left untouched — they encode real EVE domain meaning independent of the app's faction theme |
 | v3 | 2026-07-14 | Legibility fix: secondary labels no longer stack alpha on top of `onSurfaceVariant`; smallest text raised to the app-wide 11sp floor |
 | v2 | 2026-07-14 | Split SF/LP storage bars; pull-to-refresh; "data Xm ago" freshness label |
 | v1 | 2026-07-09 | Initial implementation: colored PlanetTypeChip per EVE type (Barren=gold, Plasma=red, Storm=purple, Oceanic=blue), Attention/Idle status chips, cards with planet name + type + level + last-update time |
 
 ## Implementation notes
 **File**: `composeApp/src/commonMain/.../ui/screen/PiScreen.kt`
-- `PlanetCard` — card per planet; Column + StatusChip row layout.
+- `PlanetCard` — card per planet; Column + StatusChip row layout. Uses `GlowCard` (`ui/component/GlowCard.kt`) as of 2026-07-19, see [[ADR-017 - Neon Outline Card and Icon Treatment]].
 - `StatusChip` — ACTIVE/NEEDS_ATTENTION/IDLE derived from `planet.status(now)`.
 - `PlanetTypeChip` — colored pill for planet type; color pairs hardcoded per type (barren/plasma/storm/oceanic/temperate/lava/ice/gas). Falls back to `surfaceContainerHighest`/`onSurfaceVariant` for unknown types.
 - `StorageRow(label, fillRatio, usedM3, capacityM3)` — called twice per colony card when capacity > 0: "Storage" row (SF, 12,000 m³ buffer for P0→P1) then "Launchpad" row (LP, 10,000 m³ finished-goods export).
