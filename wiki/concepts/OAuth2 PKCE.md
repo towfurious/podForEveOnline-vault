@@ -46,6 +46,9 @@ WebViews expose the host app to credential capture and can't share the user's ex
 
 **What logout does *not* clear (Android, as of 2026-07-24)**: the EVE SSO web session cookie living in Chrome itself. Custom Tabs share Chrome's real cookie jar by design, so before 2026-07-24 a user could tap "Log out" (correctly wiping everything above) and then tap "Login with EVE Online" again and get silently re-authenticated with zero credential prompt — this is standard, well-known Custom Tabs behavior, not specific to this app. Fixed for Android via ephemeral Custom Tabs (`setEphemeralBrowsingEnabled`) — see [[ADR-008 - OAuth2 PKCE via System Browser]]'s 2026-07-24 addendum for the fix and its device-verified fallback behavior. **iOS has the same underlying exposure and is not yet fixed** — see that same addendum for why (the shipped iOS code doesn't even use the documented `ASWebAuthenticationSession` yet).
 
+### Demo Mode (added 2026-07-24)
+`AuthState` gained a fifth-branch sibling, `AuthState.Demo` — entered/exited via `AuthRepository.enterDemoMode()`/`exitDemo()`, both plain state flips with no token exchange and no [[SecureStorage]]/SQLDelight access at all. It exists to satisfy Google Play's "Sign in details" store-review requirement without ever sharing a real EVE Online account with a third party — see [[ADR-022 - Demo Mode]] for the full reasoning and the EVECompanion precedent that motivated it.
+
 ## Tradeoffs
 - **Pros:** no client secret on device, industry-standard, resistant to code-interception attacks, compatible with EVE's OAuth server.
 - **Cons:** extra SHA-256 step, requires custom-URL-scheme wiring per platform, still requires `state` validation by us.
