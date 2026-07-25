@@ -364,7 +364,7 @@ Never edit past entries. If a past entry was wrong, add a new `meta` entry corre
 
 ## 8. Git
 
-This vault is planned to become its own git repo. For now it lives inside the app repo directory but is excluded via the app repo's `.gitignore`. Initialize vault as its own git repo when convenient.
+This vault is its own git repository (`git@github.com:towfurious/podForEveOnline-vault.git`), a sibling directory of the app repo, not nested inside it. **Commit it separately from the app repo, every time** — see the `ship` skill in `podForEveOnline/.claude/skills/ship/SKILL.md`, which exists specifically because this step was being skipped (an entire multi-day session's worth of wiki edits sat uncommitted here on 2026-07-24 while the app repo got clean commits the whole time).
 
 Commit style inside the vault:
 - Small, frequent commits. One commit per logical operation (one ingest = one commit, one lint pass = one commit).
