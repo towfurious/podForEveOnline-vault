@@ -4,7 +4,7 @@ type: concept
 tags: [concept, architecture, layer-data, swr-cache, sqldelight]
 aliases: [SWR, SWR Cache, Stale-While-Revalidate]
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-21
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -28,6 +28,7 @@ EVE's ESI is cacheable (`Cache-Control: max-age=…` on most endpoints) and not 
 - **Storage:** [[ADR-004 - Ktor SQLDelight Koin Coil3 Stack|SQLDelight]] — typed queries over SQLite, KMP-native.
 - **Repository pattern:** each repository exposes a `Flow<Data>` that emits from SQLDelight; repository also owns a `suspend fun refresh()` that hits Ktor and writes back. ViewModels subscribe to the flow and call `refresh()` on screen open and pull-to-refresh.
 - **TTL:** per-entity, seeded from ESI `Cache-Control` / `Expires` headers. Override if the ESI TTL is uselessly short (some endpoints have sub-minute TTLs we don't need that aggressively).
+- **HTTP-level compliance (added 2026-07-21):** [[ADR-018 - ESI HTTP Essentials]] installs Ktor's own `HttpCache` plugin on every ESI-bound client, so a repository's "refetch" decision (this layer) and whether that refetch actually crosses the network (Ktor's layer, honoring `Expires`/`ETag`/304) are two independent, correctly-composed layers rather than one hand-rolled mechanism.
 
 ### Refresh triggers
 1. App foreground (from background → foreground transition).
@@ -45,6 +46,7 @@ EVE's ESI is cacheable (`Cache-Control: max-age=…` on most endpoints) and not 
 ## Related
 - [[UiState]] — render contract for Loading / Success / Error including stale.
 - [[Skill Queue]], [[Planet]], [[Industry Job]], [[Character]] — entities that flow through the cache.
+- [[ADR-018 - ESI HTTP Essentials]] — the HTTP-level cache-header compliance layer underneath this one.
 
 ## Sources
 - [[Source - 2026-04-24 - EVE Online KMP Design Spec]]

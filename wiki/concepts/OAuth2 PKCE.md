@@ -4,7 +4,7 @@ type: concept
 tags: [concept, auth, oauth2, pkce, sso, esi-scopes]
 aliases: [PKCE, Proof Key for Code Exchange]
 created: 2026-04-24
-updated: 2026-07-15
+updated: 2026-07-24
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 ---
@@ -40,6 +40,11 @@ EVE SSO is used as a public OAuth2 provider. The app is a mobile/desktop client 
 
 ### Why system browser and not WebView
 WebViews expose the host app to credential capture and can't share the user's existing browser session. EVE SSO policy (and modern OAuth BCP RFC 8252) forbids WebViews for native apps.
+
+### Logout (added 2026-07-21)
+`AuthRepository.logout()` clears the refresh token from [[SecureStorage]] **and** wipes the character/skill-queue/planet/industry-job tables in the [[Stale-While-Revalidate Cache|SQLDelight cache]] in one transaction — closing [[Guide - App Store Launch Readiness]]'s P1 #5 (the privacy policy previously said logout left cached character data on-device until uninstall). `skill_type` (universe type-id → name) is deliberately left alone: it's shared reference data, not data about the user's own character. Ktor's in-memory `HttpCache` (see [[ADR-018 - ESI HTTP Essentials]]) is *not* cleared on logout — low risk today since every cacheable URL embeds `characterId`, but worth remembering if multi-character support is ever added.
+
+**What logout does *not* clear (Android, as of 2026-07-24)**: the EVE SSO web session cookie living in Chrome itself. Custom Tabs share Chrome's real cookie jar by design, so before 2026-07-24 a user could tap "Log out" (correctly wiping everything above) and then tap "Login with EVE Online" again and get silently re-authenticated with zero credential prompt — this is standard, well-known Custom Tabs behavior, not specific to this app. Fixed for Android via ephemeral Custom Tabs (`setEphemeralBrowsingEnabled`) — see [[ADR-008 - OAuth2 PKCE via System Browser]]'s 2026-07-24 addendum for the fix and its device-verified fallback behavior. **iOS has the same underlying exposure and is not yet fixed** — see that same addendum for why (the shipped iOS code doesn't even use the documented `ASWebAuthenticationSession` yet).
 
 ## Tradeoffs
 - **Pros:** no client secret on device, industry-standard, resistant to code-interception attacks, compatible with EVE's OAuth server.

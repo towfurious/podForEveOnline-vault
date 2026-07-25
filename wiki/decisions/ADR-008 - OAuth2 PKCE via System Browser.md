@@ -4,7 +4,7 @@ type: decision
 tags: [adr, auth, oauth2, pkce, sso, secure-storage]
 aliases: []
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-07-24
 sources: [[Source - 2026-04-24 - EVE Online KMP Design Spec]]
 status: active
 adr-status: Accepted
@@ -16,6 +16,10 @@ adr-status: Accepted
 Accepted 2026-04-24.
 
 > **Addendum (2026-07-15)**: the redirect URI documented below was corrected during initial Android/iOS setup — the actual registered and shipped scheme is `eveauth-podforeve://callback`, not `eve-tracker://callback` (the EVE Developer Portal requires an `eveauth`-prefixed custom scheme). This page's original body is left as accepted (ADRs are append-only); [[Platform - Android]], [[Platform - iOS]], and [[OAuth2 PKCE]] have been corrected to the shipped value. The `[[Guide - Registering eve-tracker URI]]` mentioned under Consequences below was never written — see [[Guide - App Store Launch Readiness]] for current open documentation gaps.
+>
+> **Addendum (2026-07-24) — Android login now deliberately breaks the session-cookie reuse this ADR originally listed as a positive**: user noticed that PodForEve's own `Log out` (which correctly wipes the local refresh token + cache, see [[OAuth2 PKCE]] "Logout") could be silently bypassed — tapping login again just reused Chrome's still-live EVE SSO session cookie with zero credential prompt, because Custom Tabs share Chrome's real cookie jar by design (exactly what line 39 below praised). Confirmed via CCP's documented `/v2/oauth/authorize/` parameters that EVE SSO has no `prompt=login`-style server-side way to force re-auth. Fixed client-side instead: `UrlLauncher.android.kt`'s Custom Tabs launch now uses `CustomTabsIntent.Builder().setEphemeralBrowsingEnabled(...)`, gated on `CustomTabsClient.isEphemeralBrowsingSupported()` with a graceful fallback to the original session-sharing behavior when unsupported (no `androidx.browser` version bump needed — already on 1.10.0, above the 1.9.0-alpha05 minimum). **Device-verified the fallback path is real, not just written**: a temporary debug log confirmed `isEphemeralBrowsingSupported()` returns `false` on the test device despite Chrome 150 (above the documented 136+ minimum) — likely gated behind a server-side Chrome rollout flag rather than a pure version check, so this feature will silently start working on its own as Google rolls it out further, no app change needed.
+>
+> **Real gap found while touching this file**: the Decision above states iOS uses `ASWebAuthenticationSession` — the actual shipped `UrlLauncher.ios.kt` does not; it uses plain `UIApplication.openURL`, opening full Safari rather than an in-app auth session. This predates this addendum and was not introduced by the Android fix above. It means the exact same session-bypass-on-logout problem this addendum just fixed on Android almost certainly also exists on iOS today (Safari shares cookies the same way Chrome does), and fixing it properly would first need switching to the documented `ASWebAuthenticationSession` API (which has its own `prefersEphemeralWebBrowserSession` property for the same fix) before an equivalent ephemeral-session fix is even possible. Not fixed now — iOS work is deliberately deferred until after the Android launch per the user's 2026-07-22 sequencing decision. Tracked as a real, verified gap, not a guess: see [[Guide - App Store Launch Readiness]] P2.
 
 ## Context
 The app authenticates against EVE SSO as a public mobile client. It cannot hold a client secret, must survive token interception, and should not reinvent the security wheel. OAuth 2.0 for Native Apps (RFC 8252) mandates the system browser; EVE SSO supports PKCE.
