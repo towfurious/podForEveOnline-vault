@@ -40,6 +40,7 @@
 - [[ADR-020 - Notification Reboot Survival]] — `BootCompletedReceiver` re-derives Skill Queue + Industry Job notifications from the SQLDelight cache on reboot, reusing the existing `activeSkill()` selector and `NotificationScheduler.reconcile()` entry point. PI extractor notifications explicitly not re-armed — colony data is never persisted.
 - [[ADR-021 - Firebase Crashlytics Integration]] — Firebase project + `com.podforeve.tracker` Android app registered via console; `google-services.json` committed (not a secret per Firebase's own guidance); `google-services`/`firebase-crashlytics` Gradle plugins wired in `androidApp` only. Device-verified real init + settings fetch + mapping-file upload.
 - [[ADR-022 - Demo Mode]] — `AuthState.Demo` + static `DemoData` object let any user (or a Play Console reviewer) explore all 4 screens fully without an EVE account. Closes the "Sign in details" store-review requirement without ever sharing real EVE credentials with Google. Precedent: EVECompanion's own "Demo Mode" feature.
+- [[ADR-023 - CI Release Keystore Debugging]] — first real `android-release` CI run failed with a misleading AGP ASN.1 error ("Tag number over 30"); root cause was a silently-empty `ANDROID_KEYSTORE_BASE64` secret (set from a relative path in the wrong cwd), not a keystore-format bug. The plausible-looking PKCS12-vs-JKS format theory was a dead end — worth reading before chasing that again.
 
 ## Patterns
 - [[Math-Based Progress Bar]] — compute progress from start/end timestamps, tick via coroutine, never poll.
