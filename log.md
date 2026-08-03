@@ -715,3 +715,7 @@
 - **Feature graphic (1024×500)**: built from scratch to match the app's actual visual identity — pulled real hex values from `ui/theme/Theme.kt` (EmOrange `#FF8040`, EmAmber `#E8A020`, EmBg `#0E0908`) rather than guessing colors, composed as an HTML page, and rendered pixel-exact via headless Chrome (`--headless=new --window-size=1024,500 --screenshot=...`) after discovering the Browser pane's own screenshot tool returns a display-scaled image, not source resolution — not usable for a spec requiring an exact pixel count. Confirmed via `sips`: 1024×500, no alpha, matches Play's requirement exactly.
 - Both now live in a new `store/` folder in the app repo (`store/feature-graphic.png`, `store/listing.md` — category, short/full description text, and notes on where each asset actually lives) instead of only existing in chat history.
 - Wiki: [[Guide - App Store Launch Readiness]] P0 #8 marked done.
+
+## [2026-07-24] meta | Fixed stale vault README claim
+- **Found while writing the app repo's own `README.md`** (user asked for it fresh, since none existed): this vault's `README.md` still claimed it was "planned to move into its own git repository... for now gitignored by the parent app repo" — wrong, and already corrected in `CLAUDE.md` §8 on 2026-07-24 during the `ship` skill work, but `README.md` was missed at the time.
+- Fixed to state plainly the vault is already its own repo, sibling to the app repo, pointing at `[[CLAUDE]]` §8 for commit conventions.

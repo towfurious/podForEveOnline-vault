@@ -10,4 +10,4 @@ An Obsidian vault serving as this project's persistent, compounding knowledge ba
 
 Start here: `[[CLAUDE]]` (schema) · `[[index]]` (catalog) · `[[log]]` (timeline).
 
-This vault is planned to move into its own git repository. For now it is gitignored by the parent app repo.
+This vault is its own git repository (`git@github.com:towfurious/podForEveOnline-vault.git`), a sibling directory of the app repo — not nested inside it, not gitignored by it. See `[[CLAUDE]]` §8 for commit conventions.
