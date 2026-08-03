@@ -719,3 +719,8 @@
 ## [2026-07-24] meta | Fixed stale vault README claim
 - **Found while writing the app repo's own `README.md`** (user asked for it fresh, since none existed): this vault's `README.md` still claimed it was "planned to move into its own git repository... for now gitignored by the parent app repo" — wrong, and already corrected in `CLAUDE.md` §8 on 2026-07-24 during the `ship` skill work, but `README.md` was missed at the time.
 - Fixed to state plainly the vault is already its own repo, sibling to the app repo, pointing at `[[CLAUDE]]` §8 for commit conventions.
+
+## [2026-07-24] dev | GitHub Actions release secrets confirmed (Guide P0 #1 / P1 #7)
+- User added all 4 secrets themselves via `gh` (now installed and authenticated as `towfurious` — an earlier note here claiming `gh` wasn't installed was stale, corrected). Confirmed present via `gh secret list`: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` (names/timestamps only — values never seen).
+- This closes the last open item in P0 #1 and makes the `android-release` CI job (P1 #7) actually runnable for the first time, not just YAML-validated. Not yet triggered end-to-end.
+- Wiki: [[Guide - App Store Launch Readiness]] P0 #1 and P1 #7 updated.
