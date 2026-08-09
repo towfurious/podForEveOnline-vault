@@ -39,6 +39,10 @@ Each row notes whether Claude Code can implement it directly, or whether it need
 
 **First release submitted 2026-07-24**: a Closed testing (Alpha) release, signed AAB built by the now-verified `android-release` CI job, uploaded and sent to Google for review. New personal-developer-account requirement applies (see [[Guide - App Store Launch Readiness#P1]] item 7's neighbor context, or just: 12 testers opted in continuously for 14 days before Production access unlocks) — tester recruitment (Reddit r/Eve post + an open-join Google Group as the tester allow-list, since a hand-curated email list doesn't scale to public recruitment) is the actual next bottleneck, not anything left to build.
 
+**Live bug found 2026-08-09 — real EVE SSO login was broken in the submitted build.** Installed the actual Play Store app on a real device and hit `{"error":"invalid_request","error_description":"The client_id parameter is required."}` on the login screen — every real tester who installed the 2026-07-24 submission and tried to log in with a real EVE account would have hit this too (Demo Mode was unaffected). Root cause + fix: see [[ADR-011 - Secrets via expect-actual and local.properties]]'s 2026-08-09 addendum — the `android-release` CI job never wrote `local.properties`, so `esiClientId` silently built as `""`. Fixed in `.github/workflows/ci.yml`; **a new signed build still needs to be produced and re-submitted** to actually fix what's live — the CI fix alone doesn't retroactively repair the already-submitted AAB.
+
+**Investigated and ruled out same day**: user asked whether the shipped app might also be running the debug-only Chucker HTTP inspector in production. Pulled the actual installed base.apk via `adb` and grepped its full contents (dex, resources, manifest) for any trace of Chucker — zero matches, confirming `releaseImplementation(libs.chucker.no.op)` (`androidApp/build.gradle.kts`) works correctly. Not a bug; the login failure above is unrelated to this check, just found in the same session while investigating it.
+
 ## P1 — strongly recommended before a real public launch
 
 | # | Item | Status | Why | Technical note | Requires your action? |
