@@ -43,6 +43,8 @@ Each row notes whether Claude Code can implement it directly, or whether it need
 
 **Investigated and ruled out same day**: user asked whether the shipped app might also be running the debug-only Chucker HTTP inspector in production. Pulled the actual installed base.apk via `adb` and grepped its full contents (dex, resources, manifest) for any trace of Chucker — zero matches, confirming `releaseImplementation(libs.chucker.no.op)` (`androidApp/build.gradle.kts`) works correctly. Not a bug; the login failure above is unrelated to this check, just found in the same session while investigating it.
 
+**`android-release` now auto-publishes to this same closed-testing track (2026-08-09)** — see [[ADR-024 - Automated Play Console Publishing]]. Triggering the job manually now builds, signs, versions (`versionCode` from `github.run_number`, fixing the hardcoded `1` that would have blocked any second upload), and pushes straight to the track testers already see — no more manual AAB download/upload through the Play Console web UI. First real end-to-end run (the one that actually fixes the broken-login build above) tracked in `log.md`.
+
 ## P1 — strongly recommended before a real public launch
 
 | # | Item | Status | Why | Technical note | Requires your action? |
