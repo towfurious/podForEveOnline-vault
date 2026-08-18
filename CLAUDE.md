@@ -83,6 +83,7 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: [[<source page>]]
 status: active | draft | stale | superseded
+confidence: derived   # optional — omit unless §3.6 applies
 ---
 ```
 
@@ -91,6 +92,7 @@ status: active | draft | stale | superseded
 - `stale` — flagged by lint; content may be outdated.
 - `superseded` — replaced; body MUST link to the successor page.
 - Bump `updated:` every time you edit a page non-trivially.
+- `confidence` — see §3.6. Most pages omit it entirely; only set it where §3.6's rule applies.
 
 ### 3.3 Links
 
@@ -199,6 +201,18 @@ Accepted YYYY-MM-DD  (or) Superseded by [[ADR-XXX]]  (or) Rejected
 ## Wiki pages touched
 ```
 
+### 3.6 Confidence
+
+Most pages in this vault don't need a confidence tag at all. The vast majority of content here is `dev`-type work — decisions and facts already self-verified in the text itself (a "Verified: ..." paragraph naming the actual build/test/device-check that confirmed it, per §4.4 and this vault's established log.md style). That prose-level verification already does the job; don't bolt a redundant `confidence: sourced` onto every page that already says exactly how it was confirmed.
+
+Set `confidence: derived` (frontmatter) only when a page's central claims are **not** backed by that kind of direct verification — a genuine inference, assumption, or extrapolation the agent made without a build/test/source/device-check to point at. For a page that's mostly solid but has one or two such claims, leave frontmatter unset and tag the specific sentence inline instead: `this detail is unverified [derived]`.
+
+Rules:
+- **Source pages** (`type: source`) are `sourced` by definition — they're a direct summary of `sources/raw/`'s immutable content. No tag needed; the `sources:` frontmatter link already documents provenance.
+- **Query-filed pages** (§4.2 step 4): a new page filed back from synthesizing an answer defaults to `confidence: derived` until a later ingest or explicit check confirms it — set this automatically when creating one.
+- **Upgrading**: if a later ingest or verification pass confirms a `derived` claim, remove the tag (or the inline `[derived]` marker) and note the confirming source/check in the body.
+- **At query time**: if answering a question requires relying on a `derived`-tagged claim, say so in the answer — don't present it with the same confidence as a verified one.
+
 ---
 
 ## 4. Workflows
@@ -232,7 +246,7 @@ Steps:
 1. Read `index.md` first to locate candidate pages.
 2. Read candidates, follow wikilinks as needed.
 3. Answer with inline citations: "`[[Character]]` says …".
-4. If the synthesis is valuable (comparison, new connection, analysis), **file it back as a new page** (usually a `concept` or `guide`) and link it from relevant pages. Otherwise knowledge leaks back into chat history and is lost.
+4. If the synthesis is valuable (comparison, new connection, analysis), **file it back as a new page** (usually a `concept` or `guide`) and link it from relevant pages. Otherwise knowledge leaks back into chat history and is lost. Tag it `confidence: derived` (§3.6) — it's a synthesis, not a direct source, until something later confirms it.
 5. Append `log.md`:
    ```
    ## [YYYY-MM-DD] query | <question in ≤10 words>
@@ -244,21 +258,24 @@ Steps:
 
 Trigger: on explicit request, or proactively after ~10 ingests.
 
-Check:
-- **Contradictions** — same claim stated differently on two pages.
-- **Stale pages** — older pages whose claims a newer source invalidated.
-- **Orphans** — pages with zero inbound or outbound wikilinks.
-- **Missing pages** — concepts mentioned on ≥2 pages but lacking their own page.
-- **Missing cross-refs** — pages that should link but don't.
-- **Tag drift** — near-duplicate tags; merge / normalize.
-- **Gap suggestions** — web searches or docs that would close a factual gap.
+Check, in this order:
+1. **Orphans** — pages with zero inbound or outbound wikilinks (excluding `index.md`/`log.md`).
+2. **Duplicate entities** — different pages/sections describing the same entity or concept in different wording, without necessarily contradicting each other. Propose a merge; don't auto-merge without confirmation.
+3. **Contradictions** — same claim stated differently on two pages.
+4. **Stale pages** — older pages whose claims a newer source or log entry invalidated. Name which page and which newer material disagrees.
+5. **Missing cross-refs** — mentions of a concept/entity in prose that has its own page but no `[[...]]` link to it.
+6. **Missing pages** — concepts mentioned on ≥2 pages but lacking their own page.
+7. **Confidence audit** (§3.6) — pages/claims tagged `derived` that a newer source or verification could plausibly now confirm; claims that look inferred but carry no `[derived]` marker at all.
+8. **Log consistency** — `log.md` entries that don't match actual wiki state (an ingest logged but no pages actually touched, or vice versa; a `dev` entry whose "Wiki: ..." line names pages that weren't in fact updated).
+9. **Tag drift** — near-duplicate tags; merge / normalize.
+10. **Gap suggestions** — web searches or docs that would close a factual gap.
 
-Output:
-- Fix unambiguous issues inline.
-- For ambiguous calls, produce a checklist for the user.
+Output — go through every item above explicitly, in order. Don't shortcut to "all good" without actually checking each one; for every item, report the count found (even if zero) and the specific pages involved:
+- Auto-fix only trivial cases inline (e.g., a missing backlink to a page already explicitly named in the text). Everything else — including duplicate-entity merges, contradiction resolutions, and confidence-tag changes — goes into a checklist for the user; don't act on it without confirmation.
 - Append `log.md`:
    ```
    ## [YYYY-MM-DD] lint | <scope>
+   - Checked: <item> — <count found>, <pages>
    - Fixed: …
    - Proposed: …
    ```
