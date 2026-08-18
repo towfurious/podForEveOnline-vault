@@ -226,7 +226,7 @@ Steps:
 2. Read the source fully.
 3. Discuss key takeaways with the user (3–5 bullets). Get a signal before integrating.
 4. Create `sources/Source - YYYY-MM-DD - <Title>.md` from `templates/Source Template.md`.
-5. Integrate: for each fact, entity, decision, ESI detail, create or update the relevant page in `wiki/`. Wikilink **both directions**.
+5. Integrate: for each fact, entity, decision, ESI detail — **first check `index.md` and skim the relevant `wiki/<type>/` folder for an existing page covering the same ground** (by title, aliases, or obvious topic overlap); update that page instead of creating a near-duplicate. Only create a new page when nothing already covers it. This is the actual point where context rot accumulates — a single ingest touching 5–15 pages drifts fast without this check. Wikilink **both directions**.
 6. Update `index.md` — add new pages under the right section.
 7. Append `log.md`:
    ```
@@ -352,6 +352,8 @@ Examples: `screen-dashboard-2026-07-09.png`, `screen-pi-2026-07-10.png`.
 Sections match directory structure: Entities, Concepts, Decisions, Patterns, ESI, Screens, Platform, Guides, Sources. Plus an **Open threads** section at the bottom listing `status: draft` pages and lint-flagged items.
 
 Update on every ingest, query that produces a new page, or lint pass. Keep it skimmable — if any section grows past ~30 entries, split by subtopic.
+
+**Scaling ceiling**: this whole navigation model — read `index.md` first, drill into pages via wikilinks, grep for specifics — works without any embedding/search infrastructure up to roughly **~100 sources / a few hundred wiki pages** (this vault is at 48 as of 2026-08-10, well under it). Past that point `index.md` itself stops fitting comfortably in context and flat-file navigation stops being enough — at that point, add search *over* `index.md` (BM25 or embeddings) rather than trying to make `index.md` bigger. Don't build that infrastructure now — it's real added complexity with no payoff at current scale, and this project's own stated goal (evaluating tooling honestly, not gold-plating it) argues against it. This note exists so hitting the ceiling later reads as an expected, planned-for transition, not a surprise.
 
 ---
 
