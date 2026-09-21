@@ -4,7 +4,7 @@ type: decision
 tags: [adr, android, ci, gh-actions, play-console, versioning]
 aliases: [ADR-024, Play Console Auto-Publish]
 created: 2026-08-09
-updated: 2026-08-09
+updated: 2026-09-21
 sources: []
 status: active
 adr-status: Accepted
@@ -59,6 +59,7 @@ CI passes `-PversionCode=${{ github.run_number }}` to `bundleRelease`. `run_numb
 - `run_number`-derived `versionCode` has gaps (it also increments on non-release CI runs) and isn't human-readable as a "build count" — acceptable since Play Console only requires monotonicity, not contiguity, but worth knowing if `versionCode` is ever eyeballed as a proxy for "how many releases have shipped."
 - The `podforeve` GCP project is separate from the `pod-for-eve-online` project used for [[ADR-021 - Firebase Crashlytics Integration]] — deliberately kept apart per the user's own account-organization preference (different underlying Google account), not a technical requirement. Two GCP projects to keep track of instead of one.
 - `status: completed` means a triggered run is *live to real testers immediately* — there is no dry-run or draft mode in this pipeline. Anyone running the job needs to treat the trigger itself as the point of no return, not the Play Console review step (there isn't one for closed testing).
+- **Manual production-promotion path confirmed working as designed (2026-09-21)**: the deliberately-narrow service-account scope (testing tracks only) held — the first production release (`23 (0.1.0)`) had to go through Play Console's own manual "Create new release" → "Preview and confirm" flow, exactly as this ADR intended. Play Console's UI briefly showed a misleading intermediate state worth knowing about: after clicking through, the Production track summary still read "Draft release · Inactive" while a "Changes in review" banner elsewhere showed only the countries/regions config as submitted — the release itself hadn't actually gone through step 2 ("Preview and confirm") yet. Re-entering "Edit release" and completing that step is what actually moved the track summary to "Active · ... in review." Worth checking the track summary line itself, not just the presence of a "Changes in review" banner, before treating a production submission as done.
 - ~~Not yet exercised end-to-end~~ — **confirmed working the same day**: first real `workflow_dispatch` run built, signed, versioned (`versionCode 20`), and published successfully (`Successfully committed`/`Finished uploading to the Play Store` in the CI log). Google's automated pre-publish check took ~35 min (longer than the UI's own "up to 12 minutes" estimate) before the release actually went live on the track. Confirmed on the real Pixel 10 Pro XL via `adb`: device picked up `versionCode 20` after a manual Play Store update, and real EVE SSO login succeeded — the exact bug this pipeline exists to have caught sooner next time. See `log.md` 2026-08-09/10 for the full trace.
 
 ## Alternatives considered

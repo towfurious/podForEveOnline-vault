@@ -4,7 +4,7 @@ type: guide
 tags: [guide, android, ios, mvp]
 aliases: [Launch Readiness, Store Launch Checklist]
 created: 2026-07-15
-updated: 2026-07-24
+updated: 2026-09-21
 sources: []
 status: active
 ---
@@ -45,7 +45,9 @@ Each row notes whether Claude Code can implement it directly, or whether it need
 
 **`android-release` now auto-publishes to this same closed-testing track (2026-08-09)** — see [[ADR-024 - Automated Play Console Publishing]]. Triggering the job manually now builds, signs, versions (`versionCode` from `github.run_number`, fixing the hardcoded `1` that would have blocked any second upload), and pushes straight to the track testers already see — no more manual AAB download/upload through the Play Console web UI. First real end-to-end run (the one that actually fixes the broken-login build above) tracked in `log.md`.
 
-**Google Play production access granted (2026-09-20)** — the 12-tester/14-day closed-test requirement was met; "Apply for production" unlocked. Before creating the first production release, picked up two more items from closed-testing usage/feedback: [[ADR-026 - Tab Back-Press Returns to Dashboard]] (P2 bug, deprioritized during closed testing, revisited for the wider public audience) and [[ADR-027 - AMOLED Default and Contrast Softening]] (direct tester feedback: default theme "too bright"). Both device-verified 2026-09-21; the actual first production release (a fresh `android-release` run including these two changes, then Play Console's own "Create a new release" → production track flow) is tracked as the next `log.md` entry.
+**Google Play production access granted (2026-09-20)** — the 12-tester/14-day closed-test requirement was met; "Apply for production" unlocked. Before creating the first production release, picked up two more items from closed-testing usage/feedback: [[ADR-026 - Tab Back-Press Returns to Dashboard]] (P2 bug, deprioritized during closed testing, revisited for the wider public audience) and [[ADR-027 - AMOLED Default and Contrast Softening]] (direct tester feedback: default theme "too bright"). Both device-verified 2026-09-21.
+
+**First production release submitted 2026-09-21** — release `23 (0.1.0)`, 177 countries/regions. Confirmed via Play Console's own UI, not assumed from the submission action alone: the Production track summary initially still read "Draft release: 23 (0.1.0) · Inactive" after the release-creation flow, with the "Changes in review" banner on Publishing overview listing only the countries/regions config and the closed-testing-alpha rollout — no line for the production release itself. Went back into "Edit release" (still step 1 "Create release", not yet through step 2 "Preview and confirm") and completed the submission properly; re-checked the track summary afterward and confirmed it now reads **"Active · Release 23 (0.1.0) in review"**. PodForEve's first-ever public production submission to Google Play.
 
 ## P1 — strongly recommended before a real public launch
 
