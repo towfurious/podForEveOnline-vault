@@ -833,3 +833,10 @@
 - Sent via Publishing overview ("3 changes sent for review"); listing-only changes, no new build. Reviews typically up to 7 days.
 - Wiki: none needed beyond this entry (no code, no new page).
 
+## [2026-10-02] dev | "Support development" link (Buy Me a Coffee) - v0.1.1
+- **Trigger**: first production release went live the same day; user created a Buy Me a Coffee page (personal name, not app name - fine, see [[ADR-028 - Support Development Link]]) and asked to wire it in. Verified the public page first (text matches CCP license sec. 4.4(b), no CCP branding).
+- **Code**: new `SupportLink.kt` (+ android/ios actuals, iOS `false`), one `SettingsRow` in `DashboardSettingsSheet` reusing the existing `rememberUrlLauncher()`; `versionName` 0.1.0 -> 0.1.1.
+- **selfcheck**: ktlint, detekt, `androidApp:lintDebug` all clean.
+- **Verified on device** (Pixel 10 Pro XL, Demo Mode): row renders with emoji, tap opens the real page in a Custom Tab, pid-scoped logcat has no crash. Had to uninstall the Play-installed release first (signature conflict) - flagged to and OK'd by the user; debug build uninstalled afterwards so the Play version can be reinstalled. Not tested: iOS (row hidden by design).
+- Wiki: [[ADR-028 - Support Development Link]] (new), `index.md`.
+
