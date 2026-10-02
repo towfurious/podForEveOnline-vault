@@ -821,3 +821,8 @@
 ## [2026-09-26] meta | Buy Me a Coffee support link — decided, deferred to post-release
 - User asked about adding a donation/support link; re-verified CCP's Developer License Agreement directly against the live page (not the 2026-07-17 vault note from memory) — Section 4.4(b) still permits voluntary, non-gating donations word-for-word. Decision: add a neutral-branded (no EVE/CCP marks, per Section 7.3) support link in the settings sheet, but **hold implementation until the current production release (still "in review," see entry above) actually goes live** — don't bundle a new change into a release still sitting in Google's review queue. User will supply the actual Buy Me a Coffee / Ko-fi URL when ready to implement.
 - Wiki: [[Guide - App Store Launch Readiness]] Monetization bullet extended with the re-verified license text and the deferred-implementation decision.
+
+## [2026-10-02] meta | First production release is LIVE on Google Play
+- **Milestone**: release `23 (0.1.0)` cleared Google's review (submitted 2026-09-21, ~11 days in review for a brand-new developer account's first production submission). Confirmed in Play Console, not inferred from the email alone: Production track summary changed from "in review" to **"Active · Latest release: 23 (0.1.0) · 178 countries/regions"**. The user's first signal was an IARC "Live Rating Notice" email dated 2026-10-02 (content-rating questionnaire ratings now live) - consistent with, but not by itself proof of, publication.
+- Wiki: [[Guide - App Store Launch Readiness]] updated with the live status. The deferred "Buy Me a Coffee" support link (decided 2026-09-26) is now unblocked - to be proposed to the user next.
+
