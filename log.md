@@ -826,3 +826,10 @@
 - **Milestone**: release `23 (0.1.0)` cleared Google's review (submitted 2026-09-21, ~11 days in review for a brand-new developer account's first production submission). Confirmed in Play Console, not inferred from the email alone: Production track summary changed from "in review" to **"Active · Latest release: 23 (0.1.0) · 178 countries/regions"**. The user's first signal was an IARC "Live Rating Notice" email dated 2026-10-02 (content-rating questionnaire ratings now live) - consistent with, but not by itself proof of, publication.
 - Wiki: [[Guide - App Store Launch Readiness]] updated with the live status. The deferred "Buy Me a Coffee" support link (decided 2026-09-26) is now unblocked - to be proposed to the user next.
 
+## [2026-10-02] dev | Store listing ASO pass (title + short + full description) sent for review
+- **Trigger**: user searched "eve online" in Play and the app wasn't there. Explained why (new app, ~10 installs, indexing lag; Play has no tags - ranking is title/short/full description plus installs/ratings) and read the live listing from Play Console before proposing anything.
+- **Changes** (all en-US default listing): title `PodForEve` -> `PodForEve: Skill & PI Tracker` (29/30; deliberately no "EVE Online" in the title - CCP trademark, impersonation-policy risk); short description -> `Skill queue, PI timers & industry job tracker for EVE Online, with alerts.` (74/80); full description intro rewritten around search phrases (skill queue, PI extractor, industry jobs, wallet journal) plus one `Keywords:` line before the CCP disclaimer.
+- **Caught by Play Console itself**: first draft of the short description ended with "Free, no ads." - Play flagged it ("Should not use keywords that indicate price or promotion", can cost promotion eligibility). Removed; the warning cleared on re-save. Lesson: no price/promo words in the short description.
+- Sent via Publishing overview ("3 changes sent for review"); listing-only changes, no new build. Reviews typically up to 7 days.
+- Wiki: none needed beyond this entry (no code, no new page).
+
