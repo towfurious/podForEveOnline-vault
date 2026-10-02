@@ -840,3 +840,8 @@
 - **Verified on device** (Pixel 10 Pro XL, Demo Mode): row renders with emoji, tap opens the real page in a Custom Tab, pid-scoped logcat has no crash. Had to uninstall the Play-installed release first (signature conflict) - flagged to and OK'd by the user; debug build uninstalled afterwards so the Play version can be reinstalled. Not tested: iOS (row hidden by design).
 - Wiki: [[ADR-028 - Support Development Link]] (new), `index.md`.
 
+## [2026-10-02] meta | v0.1.1 submitted to production; store listing update already live
+- **Release path**: manual `android-release` dispatch (run 37057205292, all 3 jobs green, no iOS flake this time) -> closed-testing Alpha publish (submission 9, Published) -> Play Console Production "Add from library" (versionCode 25 / 0.1.1) with release notes about the optional Support-development link -> Preview and confirm (only warning: no native debug symbols, non-blocking) -> user clicked "Submit 1 change for review" themselves (the final send is deliberately theirs; they interrupted my attempt to click it and did it manually). Verified in Submission activity, not taken on faith: submission **10, Oct 02 4:02 PM, Production, In review**.
+- **ASO store-listing update (submission 8, Oct 02 1:51 PM) already Published** - roughly 1 hour from submit to live, much faster than the 11-day production-release review. Listing changes and new-build reviews run on very different clocks.
+- Wiki: none beyond this entry ([[ADR-028 - Support Development Link]] already covers the feature).
+
