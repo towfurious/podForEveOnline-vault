@@ -845,3 +845,8 @@
 - **ASO store-listing update (submission 8, Oct 02 1:51 PM) already Published** - roughly 1 hour from submit to live, much faster than the 11-day production-release review. Listing changes and new-build reviews run on very different clocks.
 - Wiki: none beyond this entry ([[ADR-028 - Support Development Link]] already covers the feature).
 
+## [2026-11-25] query | Foldable / large-screen support: best practices + plan
+- User asked to adapt the app for Pixel foldables, read best practices first and write a strategy + plan. Read Android's adaptive app quality guidelines (Tier 3/2/1), window size classes, "support different display sizes", fold-awareness and configuration-change docs; confirmed on Maven Central that `org.jetbrains.compose.material3.adaptive:adaptive:1.3.0` exposes `currentWindowAdaptiveInfoV2()` in commonMain (posture real on Android, default on iOS).
+- Audit found: no size awareness; 4 hard-coded nav clearances (96/80/88/80dp); Activity recreated on fold (no configChanges) with `remember`-only splash and sheet state; no AndroidView interop; iPad in the iOS target; no AVDs/cmdline-tools for testing.
+- New page: [[Guide - Foldable and Large Screen Support]] (status draft until the user approves the plan).
+

@@ -78,6 +78,7 @@
 
 ## Open threads
 - [[Guide - App Store Launch Readiness]] — master tracker for everything still needed before a real store launch: release signing, CCP disclaimer, privacy policy, crash reporting, ESI etiquette compliance, CI/CD, and more. Folds in and supersedes the CI-secret-injection and AGP-9-migration bullets that used to live here standalone, plus [[ADR-015 - Unified Completion Notifications]]'s "explicitly deferred" follow-ups.
+- [[Guide - Foldable and Large Screen Support]] — (draft) strategy + phased plan for Pixel Fold / large windows: Tier 3 continuity, nav rail at ≥600dp, two-column/grid screens, test matrix. Target 0.2.0.
 - [[ADR-015 - Unified Completion Notifications]] — iOS device/simulator behavior not yet confirmed on-device (only Android was verified, 2026-07-15).
 - Per-endpoint ESI pages (list grows during data-layer plan; two added so far).
 - `@Preview` CMP 1.11 migration — `org.jetbrains.compose.ui.tooling.preview.Preview` deprecated; migrate to `androidx.compose.ui.tooling.preview.Preview` from `org.jetbrains.compose.ui:ui-tooling-preview`.
